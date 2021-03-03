@@ -2,26 +2,38 @@
     <string name="app_name">Go4Lunch</string>
     <string name="title_activity_maps">Map</string>
 
-    <string name="authentification_description">Find a nice restaurant and invite your co-workers for lunch!</string>
-    <string name="account_authentication">Sign in</string>
-    <string name="already_connected">Continue as </string>
-    <string name="toolbar_text_1">I\'m Hungry!</string>
-    <string name="toolbar_text_2">Available workmates</string>
-    <string name="navigation_text_1">Map View</string>
-    <string name="navigation_text_2">List View</string>
-    <string name="navigation_text_3">Workmates</string>
-    <string name="restaurant_profil_button_1">CALL</string>
-    <string name="restaurant_profil_button_2">LIKE</string>
-    <string name="restaurant_profil_button_3">WEBSITE</string>
-
-    <string name="connection_succeed">connection succeed</string>
-    <string name="error_authentication_canceled">error, check your mail/password</string>
-    <string name="error_no_internet">error, check your internet connection</string>
-    <string name="error_unknown_error">unknown error</string>
-
+    //Social Auth
     <string name="facebook_application_id" translatable="false">1077583222709450</string>
     <string name="facebook_login_protocol_scheme" translatable="false">fb1077583222709450</string>
     <string name="twitter_consumer_key" translatable="false">mdRaSoUTgleNp2ChloAtVaLzW</string>
     <string name="twitter_consumer_secret" translatable="false">vFTRjhH7OQRBzfMhnJxyfzi0SnQokNnmjFDKOnTlIgKM0mMq1r</string>
+
+    //Auth
+    <string name="authentification_description">Find a nice restaurant and invite your co-workers for lunch!</string>
+    <string name="account_authentication">Sign in</string>
+    <string name="already_connected">Continue as </string>
+    <string name="error_authentication_canceled">error, check your mail/password</string>
+    <string name="error_no_internet">error, check your internet connection</string>
+    <string name="error_unknown_error">unknown error</string>
+
+    //Navigation menu
+    <string name="toolbar_text_1">I\'m Hungry!</string>
+    <string name="toolbar_text_2">Available workmates</string>
+    <string name="bottom_text_1">Map View</string>
+    <string name="bottom_text_2">List View</string>
+    <string name="bottom_text_3">Workmates</string>
+    <string name="drawer_text_1">YOUR LUNCH</string>
+    <string name="drawer_text_2">SETTINGS</string>
+    <string name="drawer_text_3">LOGOUT</string>
+
+    //Activity restaurant profil
+    <string name="restaurant_profil_button_1">CALL</string>
+    <string name="restaurant_profil_button_2">LIKE</string>
+    <string name="restaurant_profil_button_3">WEBSITE</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+
 
 </resources>

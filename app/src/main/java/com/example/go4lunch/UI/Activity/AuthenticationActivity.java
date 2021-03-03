@@ -3,6 +3,7 @@ package com.example.go4lunch.UI.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.go4lunch.R;
 import com.firebase.ui.auth.AuthUI;
@@ -22,8 +23,6 @@ public class AuthenticationActivity extends AppCompatActivity {
     Button signInBtn;
     Button continueBtn;
 
-    CoordinatorLayout coordinatorLayout;
-
     private static final int RC_SIGN_IN = 123;
 
     @Override
@@ -41,7 +40,7 @@ public class AuthenticationActivity extends AppCompatActivity {
     }
 
     public void onClickContinueButton() {
-        continueBtn.setOnClickListener(v -> startMapsActivity());
+        continueBtn.setOnClickListener(v -> startMainActivity());
     }
 
     public void onClickLoginButton() {
@@ -73,32 +72,27 @@ public class AuthenticationActivity extends AppCompatActivity {
         this.handleResponseAfterSignIn(requestCode, resultCode, data);
     }
 
-    private void showSnackBar(CoordinatorLayout coordinatorLayout, String message){
-        Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_SHORT).show();
-    }
-
     private void handleResponseAfterSignIn(int requestCode, int resultCode, Intent data){
         IdpResponse response = IdpResponse.fromResultIntent(data);
 
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {
-                startMapsActivity();
-                showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
+                startMainActivity();
             } else {
                 if (response == null) {
-                    showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));
+                    Toast.makeText(this, R.string.error_authentication_canceled,Toast.LENGTH_LONG).show();
                 } else if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
-                    showSnackBar(this.coordinatorLayout, getString(R.string.error_no_internet));
+                    Toast.makeText(this, R.string.error_no_internet,Toast.LENGTH_LONG).show();
                 } else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
-                    showSnackBar(this.coordinatorLayout, getString(R.string.error_unknown_error));
+                    Toast.makeText(this, R.string.error_unknown_error,Toast.LENGTH_LONG).show();
                 }
             }
         }
     }
 
-    private void startMapsActivity() {
+    private void startMainActivity() {
         finish();
-        Intent intent = new Intent(this, MapsActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 }

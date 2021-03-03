@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout
+    android:id="@+id/drawer_layout1"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/drawer_menu1"
+            android:src="@drawable/ic_baseline_dinner_dining_24"
+            android:elevation="20dp"/>
+
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/drawer_menu1"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@color/menu"
+            app:headerLayout="@layout/drawer_menu_header"
+            app:menu="@menu/drawer_menu"
+            app:itemTextColor="@color/white"
+            app:itemIconTint="@color/white"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.drawerlayout.widget.DrawerLayout>

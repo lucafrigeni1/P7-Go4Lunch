@@ -7,9 +7,4 @@
     <color name="notification_bar">#c41c00</color>
     <color name="main">#ff5722</color>
     <color name="menu">#ff8a50</color>
-
-    //Social media
-    <color name="facebook">#39569c</color>
-    <color name="twitter">#00acee</color>
-
 </resources>
