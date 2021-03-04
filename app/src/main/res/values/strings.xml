@@ -9,9 +9,6 @@
     <string name="twitter_consumer_secret" translatable="false">vFTRjhH7OQRBzfMhnJxyfzi0SnQokNnmjFDKOnTlIgKM0mMq1r</string>
 
     //Auth
-    <string name="authentification_description">Find a nice restaurant and invite your co-workers for lunch!</string>
-    <string name="account_authentication">Sign in</string>
-    <string name="already_connected">Continue as </string>
     <string name="error_authentication_canceled">error, check your mail/password</string>
     <string name="error_no_internet">error, check your internet connection</string>
     <string name="error_unknown_error">unknown error</string>
@@ -31,9 +28,15 @@
     <string name="restaurant_profil_button_2">LIKE</string>
     <string name="restaurant_profil_button_3">WEBSITE</string>
 
+    //Worker Fragment
+    <string name="undecided"> hasn\'t decided yet</string>
+    <string name="decision"> is eating at </string>
+
+    //Restaurant Fragment
+    <string name="opening"> </string>
+    <string name="closing"> </string>
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-
-
 
 </resources>

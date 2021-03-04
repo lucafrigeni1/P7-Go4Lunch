@@ -38,7 +38,7 @@
         </activity>
         <activity android:name=".UI.Activity.MainActivity"/>
         <activity
-            android:name=".UI.Activity.MapsFragment"
+            android:name=".UI.Fragments.MapsFragment"
             android:label="@string/title_activity_maps"/>
     </application>
 

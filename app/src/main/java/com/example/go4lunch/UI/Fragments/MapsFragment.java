@@ -1,4 +1,4 @@
-package com.example.go4lunch.UI.Activity;
+package com.example.go4lunch.UI.Fragments;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

@@ -1,4 +1,4 @@
-package com.example.go4lunch.UI.Activity;
+package com.example.go4lunch.UI.Fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
