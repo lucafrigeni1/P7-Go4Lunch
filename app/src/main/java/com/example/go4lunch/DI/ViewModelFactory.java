@@ -29,9 +29,9 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         if (modelClass.isAssignableFrom(RestaurantViewModel.class)){
-            //return (T) new RestaurantViewModel(mRestaurantDataRepository, mExecutor);
+            return (T) new RestaurantViewModel(mRestaurantDataRepository, mExecutor);
         } else if (modelClass.isAssignableFrom(WorkerViewModel.class)){
-            //return (T) new WorkerViewModel(mWorkerDataRepository, mExecutor);
+            return (T) new WorkerViewModel(mWorkerDataRepository, mExecutor);
         }
         throw new IllegalArgumentException("Unknown ViewModel class");
     }

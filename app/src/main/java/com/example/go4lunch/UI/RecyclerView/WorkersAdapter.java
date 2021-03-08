@@ -1,12 +1,14 @@
 package com.example.go4lunch.UI.RecyclerView;
 
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.go4lunch.Models.Restaurant;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.Models.Worker;
 import com.example.go4lunch.R;
 
@@ -17,9 +19,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class WorkersAdapter extends RecyclerView.Adapter<WorkersAdapter.WorkersViewHolder> {
 
-    private List<Worker> workers;
+    private final List<Worker> workers;
 
-    WorkersAdapter(final List<Worker>workers){
+    public WorkersAdapter(final List<Worker> workers){
         this.workers = workers;
     }
 
@@ -40,11 +42,10 @@ public class WorkersAdapter extends RecyclerView.Adapter<WorkersAdapter.WorkersV
         return workers.size();
     }
 
-    public class WorkersViewHolder extends RecyclerView.ViewHolder {
+    public static class WorkersViewHolder extends RecyclerView.ViewHolder {
 
         private final ImageView picture;
         private final TextView choice;
-        Restaurant restaurant;
 
         public WorkersViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -54,8 +55,22 @@ public class WorkersAdapter extends RecyclerView.Adapter<WorkersAdapter.WorkersV
         }
 
         public void bind(Worker worker) {
-            //picture
-            choice.setText(worker.getName() + R.string.decision + restaurant.getName());
+
+            if (worker.getPicture() != null){
+                Glide.with(picture)
+                        .load(worker.getPicture())
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(picture);
+            } else
+                Glide.with(picture)
+                        .load(R.drawable.ic_baseline_person_24)
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(picture);
+
+            if (worker.getChoice() != null){
+                choice.setText(worker.getName() + R.string.decision + worker.getChoice());
+            }else
+                choice.setText(worker.getName() + R.string.undecided);
         }
     }
 }

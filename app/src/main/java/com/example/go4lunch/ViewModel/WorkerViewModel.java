@@ -1,5 +1,8 @@
 package com.example.go4lunch.ViewModel;
 
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.QuerySnapshot;
+
 import java.util.concurrent.Executor;
 
 import androidx.lifecycle.ViewModel;
@@ -13,4 +16,11 @@ public class WorkerViewModel extends ViewModel {
         this.workerDataSource = workerDataRepository;
         this.mExecutor = executor;
     }
+
+    public Task<QuerySnapshot> getWorkersList(){
+        return WorkerDataRepository.getWorkerList();
+    }
+
+
+
 }

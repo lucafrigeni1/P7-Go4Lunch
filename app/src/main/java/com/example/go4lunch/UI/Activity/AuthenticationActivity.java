@@ -6,6 +6,7 @@ import android.widget.Toast;
 
 import com.example.go4lunch.R;
 import com.example.go4lunch.Utils.BaseActivity;
+import com.example.go4lunch.ViewModel.WorkerDataRepository;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
@@ -61,6 +62,7 @@ public class AuthenticationActivity extends BaseActivity {
 
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {
+                createWorkerInFirestore();
                 startMainActivity();
             } else {
                 if (response == null) {
@@ -79,4 +81,16 @@ public class AuthenticationActivity extends BaseActivity {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
+
+    public void createWorkerInFirestore() {
+        if (this.getCurrentUser() == null){
+
+            String uid = this.getCurrentUser().getUid();
+            String username = this.getCurrentUser().getDisplayName();
+            String mail = this.getCurrentUser().getEmail();
+
+            WorkerDataRepository.createWorker(uid, username, mail, null, null, null).addOnFailureListener(this.onFailureListener());
+        }
+    }
+
 }
