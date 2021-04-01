@@ -7,4 +7,8 @@
     <color name="notification_bar">#c41c00</color>
     <color name="main">#ff5722</color>
     <color name="menu">#ff8a50</color>
+
+    //Maps Marker
+    <color name="green">#7AEFB6</color>
+
 </resources>

@@ -22,21 +22,37 @@
     <string name="drawer_text_1">YOUR LUNCH</string>
     <string name="drawer_text_2">SETTINGS</string>
     <string name="drawer_text_3">LOGOUT</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    //Activity settings
+    <string name="notification_title">Notification :</string>
+    <string name="language_title">Language :</string>
+    <string name="language_1">English</string>
+    <string name="language_2">Français</string>
+    <string name="notification_1">On</string>
+    <string name="notification_2">Off</string>
 
     //Activity restaurant profil
     <string name="restaurant_profil_button_1">CALL</string>
     <string name="restaurant_profil_button_2">LIKE</string>
     <string name="restaurant_profil_button_3">WEBSITE</string>
 
+    //Map Fragment
+    <string name="default_info_title"></string>
+    <string name="default_info_snippet"></string>
+    <string name="pick_place"></string>
+    <string name="nearby_place">https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%1$s,%2$s&amp;radius=1500&amp;type=restaurant&amp;key=AIzaSyDvQNY3Hoc2titIZ-d0JfZh0w0uupLen2A</string>
+
     //Worker Fragment
-    <string name="undecided"> hasn\'t decided yet</string>
-    <string name="decision"> is eating at </string>
+    <string name="undecided"><i>%1$s hasn\'t decided yet</i> </string>
+    <string name="decision">%1$s is eating at %2$s</string>
 
     //Restaurant Fragment
     <string name="opening"> </string>
     <string name="closing"> </string>
 
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
+    //Places
+    <string name="place_base_url">https://maps.googleapis.com/maps/api/place/</string>
 
 </resources>

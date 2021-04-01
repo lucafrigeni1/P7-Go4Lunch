@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/menu">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="50dp"
+        android:text="@string/drawer_text_2"
+        android:textStyle="bold"
+        android:textSize="40sp"/>
+
+    <TextView
+        android:id="@+id/language"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="50dp"
+        android:text="@string/language_title"
+        android:textSize="25sp"/>
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/language_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/language"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:id="@+id/english"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/language_switch"
+        app:layout_constraintBottom_toBottomOf="@id/language_switch"
+        app:layout_constraintEnd_toStartOf="@id/language_switch"
+        android:layout_marginEnd="10dp"
+        android:text="@string/language_1"
+        android:textSize="20sp"/>
+
+    <TextView
+        android:id="@+id/french"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/language_switch"
+        app:layout_constraintBottom_toBottomOf="@id/language_switch"
+        app:layout_constraintStart_toEndOf="@id/language_switch"
+        android:layout_marginStart="10dp"
+        android:text="@string/language_2"
+        android:textSize="20sp"/>
+
+    <TextView
+        android:id="@+id/notification"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/language_switch"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="50dp"
+        android:text="@string/notification_title"
+        android:textSize="25sp"/>
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/notification_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/notification"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/notification_switch"
+        app:layout_constraintBottom_toBottomOf="@id/notification_switch"
+        app:layout_constraintEnd_toStartOf="@id/notification_switch"
+        android:layout_marginEnd="10dp"
+        android:text="@string/notification_1"
+        android:textSize="20sp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/notification_switch"
+        app:layout_constraintBottom_toBottomOf="@id/notification_switch"
+        app:layout_constraintStart_toEndOf="@id/notification_switch"
+        android:layout_marginStart="10dp"
+        android:text="@string/notification_2"
+        android:textSize="20sp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
