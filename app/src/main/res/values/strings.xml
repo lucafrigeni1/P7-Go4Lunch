@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">Go4Lunch</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="app_name" translatable="false">Go4Lunch</string>
+    <string name="title_activity_maps" translatable="false">Map</string>
 
     //Social Auth
     <string name="facebook_application_id" translatable="false">1077583222709450</string>
@@ -14,7 +14,7 @@
     <string name="error_unknown_error">unknown error</string>
 
     //Navigation menu
-    <string name="toolbar_text_1">I\'m Hungry!</string>
+    <string name="toolbar_text_1">I\'m hungry!</string>
     <string name="toolbar_text_2">Available workmates</string>
     <string name="bottom_text_1">Map View</string>
     <string name="bottom_text_2">List View</string>
@@ -22,8 +22,8 @@
     <string name="drawer_text_1">YOUR LUNCH</string>
     <string name="drawer_text_2">SETTINGS</string>
     <string name="drawer_text_3">LOGOUT</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
+    <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
 
     //Activity settings
     <string name="notification_title">Notification :</string>
@@ -42,7 +42,7 @@
     <string name="default_info_title"></string>
     <string name="default_info_snippet"></string>
     <string name="pick_place"></string>
-    <string name="nearby_place">https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%1$s,%2$s&amp;radius=1500&amp;type=restaurant&amp;key=AIzaSyDvQNY3Hoc2titIZ-d0JfZh0w0uupLen2A</string>
+    <string name="nearby_place" translatable="false">https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%1$s,%2$s&amp;radius=1500&amp;type=restaurant&amp;key=AIzaSyDvQNY3Hoc2titIZ-d0JfZh0w0uupLen2A</string>
 
     //Worker Fragment
     <string name="undecided"><i>%1$s hasn\'t decided yet</i> </string>
@@ -53,6 +53,6 @@
     <string name="closing"> </string>
 
     //Places
-    <string name="place_base_url">https://maps.googleapis.com/maps/api/place/</string>
+    <string name="place_base_url" translatable="false">https://maps.googleapis.com/maps/api/place/</string>
 
 </resources>

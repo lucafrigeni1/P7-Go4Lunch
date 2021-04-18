@@ -25,8 +25,6 @@ public class Worker {
         this.favoriteRestaurant = favoriteRestaurant;
     }
 
-
-
     public String getId() {
         return id;
     }

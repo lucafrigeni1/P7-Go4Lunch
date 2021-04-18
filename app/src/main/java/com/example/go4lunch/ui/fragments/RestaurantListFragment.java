@@ -9,11 +9,8 @@ import com.example.go4lunch.R;
 import com.example.go4lunch.di.Injections;
 import com.example.go4lunch.di.ViewModelFactory;
 import com.example.go4lunch.models.Restaurant;
-import com.example.go4lunch.models.Worker;
 import com.example.go4lunch.ui.recyclerview.RestaurantsAdapter;
-import com.example.go4lunch.ui.recyclerview.WorkersAdapter;
 import com.example.go4lunch.viewmodel.RestaurantViewModel;
-import com.example.go4lunch.viewmodel.WorkerViewModel;
 
 import java.util.List;
 
@@ -26,11 +23,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class RestaurantListFragment extends Fragment {
 
-    private RestaurantViewModel restaurantViewModel;
-
-    private RecyclerView listRestaurants;
-    private RestaurantsAdapter adapter;
-
+    private RestaurantViewModel viewModel;
+    private RecyclerView recyclerView;
 
     @Nullable
     @Override
@@ -41,24 +35,23 @@ public class RestaurantListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        listRestaurants = view.findViewById(R.id.restaurant_list);
+        recyclerView = view.findViewById(R.id.restaurant_list);
         setRestaurantViewModel();
         getRestaurants();
     }
 
-    private void setRestaurantList(List<Restaurant> restaurants){
-        adapter = new RestaurantsAdapter(restaurants);
-        listRestaurants.setLayoutManager(new LinearLayoutManager(this.getContext(), LinearLayoutManager.VERTICAL, false));
-        listRestaurants.setAdapter(adapter);
+    private void getRestaurants() {
+        viewModel.getRestaurantsList().observe(this, this::setRestaurantList);
     }
 
-    private void setRestaurantViewModel(){
+    private void setRestaurantList(List<Restaurant> restaurants) {
+        RestaurantsAdapter adapter = new RestaurantsAdapter(restaurants);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(), LinearLayoutManager.VERTICAL, false));
+        recyclerView.setAdapter(adapter);
+    }
+
+    private void setRestaurantViewModel() {
         ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this.getContext());
-        this.restaurantViewModel = ViewModelProviders.of(this, viewModelFactory).get(RestaurantViewModel.class);
+        this.viewModel = ViewModelProviders.of(this, viewModelFactory).get(RestaurantViewModel.class);
     }
-
-    private void getRestaurants(){
-        restaurantViewModel.getRestaurantsList().observe(this, this::setRestaurantList);
-    }
-
 }

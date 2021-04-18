@@ -3,8 +3,6 @@ package com.example.go4lunch.models.retrofit;
 
 import java.util.List;
 
-
-
 public class ResultDetails {
 
     private List<AddressComponent> addressComponents = null;

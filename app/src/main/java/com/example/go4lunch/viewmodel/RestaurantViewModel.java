@@ -1,6 +1,7 @@
 package com.example.go4lunch.viewmodel;
 
 import com.example.go4lunch.models.Restaurant;
+import com.example.go4lunch.models.Worker;
 
 import java.util.List;
 

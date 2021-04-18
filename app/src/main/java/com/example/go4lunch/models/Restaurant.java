@@ -1,5 +1,7 @@
 package com.example.go4lunch.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.format.Time;
 
 import com.example.go4lunch.models.retrofit.Location;
@@ -9,7 +11,7 @@ import java.util.List;
 
 import androidx.lifecycle.LifecycleService;
 
-public class Restaurant {
+public class Restaurant implements Parcelable {
 
     String id;
     //List<Worker> workerList;
@@ -23,6 +25,8 @@ public class Restaurant {
     double rating;
     int people;
 
+    public Restaurant(){}
+
     public Restaurant(String id, String name, String photos, String address, String website, String phoneNumber, Location location, List<Period> openHours, double rating, int people) {
         this.id = id;
         this.name = name;
@@ -35,6 +39,29 @@ public class Restaurant {
         this.rating = rating;
         this.people = people;
     }
+
+    protected Restaurant(Parcel in) {
+        id = in.readString();
+        name = in.readString();
+        photos = in.readString();
+        address = in.readString();
+        website = in.readString();
+        phoneNumber = in.readString();
+        rating = in.readDouble();
+        people = in.readInt();
+    }
+
+    public static final Creator<Restaurant> CREATOR = new Creator<Restaurant>() {
+        @Override
+        public Restaurant createFromParcel(Parcel in) {
+            return new Restaurant(in);
+        }
+
+        @Override
+        public Restaurant[] newArray(int size) {
+            return new Restaurant[size];
+        }
+    };
 
     public String getId() {
         return id;
@@ -114,5 +141,22 @@ public class Restaurant {
 
     public void setOpenHours(List<Period> openHours) {
         this.openHours = openHours;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(name);
+        dest.writeString(photos);
+        dest.writeString(address);
+        dest.writeString(website);
+        dest.writeString(phoneNumber);
+        dest.writeDouble(rating);
+        dest.writeInt(people);
     }
 }

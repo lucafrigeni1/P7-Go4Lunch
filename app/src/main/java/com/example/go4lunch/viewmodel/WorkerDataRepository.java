@@ -11,6 +11,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -31,14 +32,11 @@ import static android.content.ContentValues.TAG;
 
 public class WorkerDataRepository {
 
-
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private final static String COLLECTION_NAME = "Worker";
-    private final CollectionReference workersCollectionReference = db.collection(COLLECTION_NAME);
+    private final CollectionReference workersCollectionReference =
+            FirebaseFirestore.getInstance().collection("Worker");
 
     private final MutableLiveData<List<Worker>> dataWorkerList = new MutableLiveData<>();
     private List<Worker> workerList = new ArrayList<>();
-
 
     //CREATE
     public void createWorker(Worker worker){
@@ -61,17 +59,19 @@ public class WorkerDataRepository {
         return dataWorkerList;
     }
 
-    public Task<DocumentSnapshot> getWorker(String id){
-        return workersCollectionReference.document(id).get();
-    }
-
-
     //UPDATE
-    public Task<Void> updateWorkerChoice(String id, String choice){
-        return workersCollectionReference.document(id).update("choice", choice);
+    public void updateWorkerChoice(String choice) {
+        String id = FirebaseAuth.getInstance().getUid();
+        Log.e( "updateWorkerChoice: ", Objects.requireNonNull(id));
+        workersCollectionReference
+                .document(id)
+                .update("choice", choice);
     }
 
     public Task<Void> updateWorkerFavoriteList(String id, List<String> favoriteRestaurant){
         return workersCollectionReference.document(id).update("favoriteRestaurant", favoriteRestaurant);
     }
+
+
+
 }

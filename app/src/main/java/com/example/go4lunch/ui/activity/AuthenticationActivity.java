@@ -91,22 +91,22 @@ public class AuthenticationActivity extends BaseActivity {
         finish();
     }
 
-    private void setWorkerViewModel(){
-        ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this);
-        this.workerViewModel = ViewModelProviders.of(this, viewModelFactory).get(WorkerViewModel.class);
-    }
-
     public void createWorkerInFirestore() {
         if (this.getCurrentUser() != null){
 
-            String id = this.getCurrentUser().getUid();
-            String username = this.getCurrentUser().getDisplayName();
-            String mail = this.getCurrentUser().getEmail();
-
-            Worker worker = new Worker(id, username, mail, null, null, null);
+            Worker worker = new Worker(
+                    this.getCurrentUser().getUid(),
+                    this.getCurrentUser().getDisplayName(),
+                    this.getCurrentUser().getEmail(),
+                    null, null, null);
 
             workerViewModel.createWorker(worker);
         }
+    }
+
+    private void setWorkerViewModel(){
+        ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this);
+        this.workerViewModel = ViewModelProviders.of(this, viewModelFactory).get(WorkerViewModel.class);
     }
 
 }

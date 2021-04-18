@@ -1,2 +1,44 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+
+    //Auth
+    <string name="error_authentication_canceled">erreur, vérifier votre mail/mot de passe</string>
+    <string name="error_no_internet">erreur, vérifier votre connexion</string>
+    <string name="error_unknown_error">erreur inconnue</string>
+
+    //Navigation menu
+    <string name="toolbar_text_1">J\'ai faim!</string>
+    <string name="toolbar_text_2">Collègues disponibles</string>
+    <string name="bottom_text_1">Carte</string>
+    <string name="bottom_text_2">Liste</string>
+    <string name="bottom_text_3">Collègues</string>
+    <string name="drawer_text_1">TON CHOIX</string>
+    <string name="drawer_text_2">REGLAGES</string>
+    <string name="drawer_text_3">DECONNEXION</string>
+
+    //Activity settings
+    <string name="notification_title">Notification :</string>
+    <string name="language_title">Langage :</string>
+    <string name="language_1">English</string>
+    <string name="language_2">Français</string>
+    <string name="notification_1">On</string>
+    <string name="notification_2">Off</string>
+
+    //Activity restaurant profil
+    <string name="restaurant_profil_button_1">APPEL</string>
+    <string name="restaurant_profil_button_2">LIKE</string>
+    <string name="restaurant_profil_button_3">SITE WEB</string>
+
+    //Map Fragment
+    <string name="default_info_title"></string>
+    <string name="default_info_snippet"></string>
+    <string name="pick_place"></string>
+
+    //Worker Fragment
+    <string name="undecided"><i>%1$s n\'a pas encore décidé</i> </string>
+    <string name="decision">%1$s mange à %2$s</string>
+
+    //Restaurant Fragment
+    <string name="opening"> </string>
+    <string name="closing"> </string>
+
+</resources>

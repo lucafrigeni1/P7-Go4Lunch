@@ -1,6 +1,7 @@
 package com.example.go4lunch.viewmodel;
 
 import com.example.go4lunch.models.Worker;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -23,4 +24,6 @@ public class WorkerViewModel extends ViewModel {
     public void createWorker(Worker worker){
         workerDataSource.createWorker(worker);
     }
+
+    public void updateWorkerChoice(String choice){workerDataSource.updateWorkerChoice(choice);}
 }
