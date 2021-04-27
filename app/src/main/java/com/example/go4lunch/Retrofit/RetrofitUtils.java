@@ -12,6 +12,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitUtils {
 
+    public static final String BASE_URL = "https://maps.googleapis.com/maps/api/place/";
+    public static final String PHOTO_URL = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=";
+    public static final String API_KEY = "AIzaSyDvQNY3Hoc2titIZ-d0JfZh0w0uupLen2A";
+
     public static Retrofit getRetrofit(){
 
         GsonBuilder gsonBuilder = new GsonBuilder();
@@ -19,7 +23,7 @@ public class RetrofitUtils {
         Gson gson = gsonBuilder.create();
 
         Retrofit.Builder builder = new Retrofit
-                .Builder().baseUrl("https://maps.googleapis.com/maps/api/place/")
+                .Builder().baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson));
 
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor()
@@ -27,7 +31,6 @@ public class RetrofitUtils {
 
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder()
                 .addInterceptor(logging);
-
 
         return builder.client(httpClient.build()).build();
     }

@@ -12,8 +12,9 @@
         android:layout_width="80dp"
         android:layout_height="80dp"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_margin="10dp"/>
+        android:layout_marginEnd="10dp" />
 
     <TextView
         android:id="@+id/restaurant_name"
@@ -31,11 +32,11 @@
         android:id="@+id/distance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@id/restaurant_image"
-        app:layout_constraintTop_toTopOf="@id/restaurant_image"
-        android:layout_marginEnd="15dp"
         android:textColor="@color/quantum_grey"
-        tools:text="120m"/>
+        app:layout_constraintStart_toStartOf="@id/participants"
+        app:layout_constraintEnd_toEndOf="@id/participants"
+        app:layout_constraintTop_toTopOf="@id/restaurant_image"
+        tools:text="120m" />
 
     <TextView
         android:id="@+id/restaurant_type_and_location"
@@ -64,26 +65,25 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_baseline_person_outline_24"
-        app:layout_constraintLeft_toLeftOf="@id/distance"
-        app:layout_constraintRight_toRightOf="@id/distance"
-        app:layout_constraintTop_toTopOf="@id/restaurant_type_and_location"
-        app:layout_constraintBottom_toBottomOf="@id/restaurant_type_and_location"/>
+        app:layout_constraintBottom_toBottomOf="@id/restaurant_type_and_location"
+        app:layout_constraintEnd_toStartOf="@id/participants_number"
+        app:layout_constraintTop_toTopOf="@id/restaurant_type_and_location" />
 
     <ImageView
         android:id="@+id/star"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="@id/distance"
-        app:layout_constraintRight_toRightOf="@id/distance"
+        android:layout_width="0dp"
+        android:layout_height="12dp"
+        app:layout_constraintEnd_toStartOf="@id/restaurant_image"
         app:layout_constraintTop_toTopOf="@id/opening"
-        app:layout_constraintBottom_toBottomOf="@id/opening"/>
+        app:layout_constraintBottom_toBottomOf="@id/opening" />
 
     <TextView
         android:id="@+id/participants_number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toEndOf="@+id/participants"
+        app:layout_constraintEnd_toStartOf="@id/restaurant_image"
         app:layout_constraintBottom_toBottomOf="@id/participants"
+        android:layout_marginEnd="5dp"
         android:textColor="@color/black"
         android:textSize="13sp"
         tools:text="(2)"/>
@@ -96,6 +96,4 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="10dp"
         android:src="@color/black"/>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

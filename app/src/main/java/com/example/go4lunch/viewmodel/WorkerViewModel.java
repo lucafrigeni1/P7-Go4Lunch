@@ -1,7 +1,12 @@
 package com.example.go4lunch.viewmodel;
 
+import android.app.Activity;
+
+import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.models.Worker;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -17,6 +22,18 @@ public class WorkerViewModel extends ViewModel {
         this.workerDataSource = workerDataRepository;
     }
 
+    public FirebaseUser getFirebaseUser(){
+        return workerDataSource.getFirebaseUser();
+    }
+
+    //public LiveData<LatLng> getUserLocation(Activity activity){
+    //    return  workerDataSource.getUserLocation(activity);
+    //}
+
+    public LiveData<Worker> getCurrentUser(){
+       return workerDataSource.getCurrentUser();
+    }
+
     public LiveData<List<Worker>> getWorkersList(){
         return workerDataSource.getWorkersList();
     }
@@ -25,5 +42,7 @@ public class WorkerViewModel extends ViewModel {
         workerDataSource.createWorker(worker);
     }
 
-    public void updateWorkerChoice(String choice){workerDataSource.updateWorkerChoice(choice);}
+    public void updateWorkerChoice(String restaurantId){workerDataSource.updateWorkerChoice(restaurantId);}
+
+    public void  updateWorkerFavoriteList(List<Restaurant> favoriteRestaurants){workerDataSource.updateWorkerFavoriteList(favoriteRestaurants);}
 }

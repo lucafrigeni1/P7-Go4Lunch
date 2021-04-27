@@ -8,10 +8,13 @@ import android.view.ViewGroup;
 import com.example.go4lunch.R;
 import com.example.go4lunch.di.Injections;
 import com.example.go4lunch.di.ViewModelFactory;
+import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.models.Worker;
 import com.example.go4lunch.ui.recyclerview.WorkersAdapter;
+import com.example.go4lunch.viewmodel.RestaurantViewModel;
 import com.example.go4lunch.viewmodel.WorkerViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -23,7 +26,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class WorkerListFragment extends Fragment {
 
-    private WorkerViewModel viewModel;
+    List<Restaurant> restaurantsList = new ArrayList<>();
+    private WorkerViewModel workerviewModel;
+    private RestaurantViewModel restaurantViewModel;
     private RecyclerView recyclerView;
 
     @Nullable
@@ -36,22 +41,31 @@ public class WorkerListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         recyclerView = view.findViewById(R.id.worker_list);
-        setWorkerViewModel();
+        setViewModel();
         getWorkers();
     }
 
     private void getWorkers() {
-        viewModel.getWorkersList().observe(this, this::setWorkerList);
+        workerviewModel.getWorkersList().observe(this, this::setRecyclerView);
     }
 
-    private void setWorkerList(List<Worker> workers) {
-        WorkersAdapter adapter = new WorkersAdapter(workers);
+    private void setRecyclerView(List<Worker> workers) {
+        getRestaurants();
+        WorkersAdapter adapter = new WorkersAdapter(workers, restaurantsList);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(), LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(adapter);
     }
 
-    private void setWorkerViewModel() {
+    private void getRestaurants() {
+        restaurantViewModel.getRestaurantsList().observe(this, restaurants -> {
+            restaurantsList = restaurants;
+        });
+    }
+
+    //rename
+    private void setViewModel() {
         ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this.getContext());
-        this.viewModel = ViewModelProviders.of(this, viewModelFactory).get(WorkerViewModel.class);
+        this.workerviewModel = ViewModelProviders.of(this, viewModelFactory).get(WorkerViewModel.class);
+        this.restaurantViewModel = ViewModelProviders.of(this, viewModelFactory).get(RestaurantViewModel.class);
     }
 }

@@ -12,15 +12,19 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.go4lunch.di.Injections;
+import com.example.go4lunch.di.ViewModelFactory;
 import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.R;
 import com.example.go4lunch.ui.activity.RestaurantDetailActivity;
+import com.example.go4lunch.viewmodel.RestaurantViewModel;
 
 import java.io.Serializable;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class RestaurantsAdapter extends RecyclerView.Adapter<RestaurantsAdapter.RestaurantsViewHolder> {
@@ -73,30 +77,24 @@ public class RestaurantsAdapter extends RecyclerView.Adapter<RestaurantsAdapter.
         }
 
         public void bind(Restaurant restaurant) {
-
             item.setOnClickListener(v -> {
                 Intent intent = new Intent(v.getContext(), RestaurantDetailActivity.class);
-                intent.putExtra("Restaurant", restaurant);
+                intent.putExtra(RestaurantDetailActivity.EXTRA_RESTAURANT, restaurant.getId());
                 v.getContext().startActivity(intent);
             });
 
-            if (restaurant.getPhotos() != null){
+
                 Glide.with(picture)
                         .load(restaurant.getPhotos())
-                        .apply(RequestOptions.circleCropTransform())
+                        .apply(RequestOptions.centerCropTransform())
                         .into(picture);
-                Log.e("bind: ", restaurant.getPhotos());
-            } else
-                Glide.with(picture)
-                        .load(R.drawable.ic_baseline_person_24)
-                        .apply(RequestOptions.circleCropTransform())
-                        .into(picture);
+                Log.e("bind: ", restaurant.getName() + " " + restaurant.getPhotos());
 
             name.setText(restaurant.getName());
             distance.setText("0" + "m");
             location.setText(restaurant.getAddress());
             opening.setText("0");
-            people.setText("(" + restaurant.getPeople() + ")");
+            people.setText("(" +  restaurant.getWorkerList().size() + ")");
 
             double rate = restaurant.getRating();
             if (rate >= 3.0 && rate < 4.0) {
@@ -108,4 +106,5 @@ public class RestaurantsAdapter extends RecyclerView.Adapter<RestaurantsAdapter.
             }
         }
     }
+
 }

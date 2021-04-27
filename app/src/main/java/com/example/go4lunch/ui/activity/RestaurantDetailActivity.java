@@ -4,9 +4,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -19,29 +16,31 @@ import com.example.go4lunch.di.Injections;
 import com.example.go4lunch.di.ViewModelFactory;
 import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.models.Worker;
-import com.example.go4lunch.ui.recyclerview.WorkersAdapter;
+import com.example.go4lunch.ui.recyclerview.RestaurantDetailWorkersAdapter;
+import com.example.go4lunch.viewmodel.RestaurantViewModel;
 import com.example.go4lunch.viewmodel.WorkerViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import static com.example.go4lunch.R.*;
-import static com.example.go4lunch.R.drawable.ic_rating_1;
-import static com.example.go4lunch.R.drawable.ic_rating_2;
+import static com.example.go4lunch.R.id;
+import static com.example.go4lunch.R.layout;
 
 public class RestaurantDetailActivity extends AppCompatActivity {
 
+    public static final String EXTRA_RESTAURANT = "RestaurantId";
 
     private WorkerViewModel workerViewModel;
+    private RestaurantViewModel restaurantViewModel;
+
+    private Worker currentUser;
 
     private ImageView picture;
     private ImageView rating;
@@ -53,21 +52,17 @@ public class RestaurantDetailActivity extends AppCompatActivity {
     private ImageButton websiteBtn;
     private RecyclerView recyclerView;
 
-
-
-    private Restaurant restaurant;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(layout.activity_restaurant_details);
-        setWorkerViewModel();
+
         findViewById();
+        setViewModel();
         getRestaurant();
-        setView();
     }
 
-    private void findViewById(){
+    private void findViewById() {
         picture = findViewById(id.restaurant_image);
         rating = findViewById(id.rating_image);
         name = findViewById(id.restaurant_name);
@@ -79,49 +74,46 @@ public class RestaurantDetailActivity extends AppCompatActivity {
         recyclerView = findViewById(id.participants);
     }
 
-    private void getRestaurant(){
-        restaurant = getIntent().getParcelableExtra("Restaurant");
+    private void getRestaurant() {
+        String id = getIntent().getStringExtra(EXTRA_RESTAURANT);
+        restaurantViewModel.getRestaurant(id).observe(this, this::setView);
     }
 
-    private void setView(){
-
-        Gson gson = new Gson();
-
-        Log.e("Restaurant:", ""+ gson.toJson(restaurant));
-
+    private void setView(Restaurant restaurant) {
         Glide.with(picture)
                 .load(restaurant.getPhotos())
+                .apply(RequestOptions.centerCropTransform())
                 .into(picture);
 
-       double rate = restaurant.getRating();
-       if (rate >= 3.0 && rate < 4.0) {
-           rating.setImageResource(R.drawable.ic_rating_1);
-       } else if (rate >= 4.0 && rate < 4.6) {
-           rating.setImageResource(R.drawable.ic_rating_2);
-       } else if (rate >= 4.6) {
-           rating.setImageResource(R.drawable.ic_rating_3);
-       }
+        double rate = restaurant.getRating();
+        if (rate >= 3.0 && rate < 4.0) {
+            rating.setImageResource(R.drawable.ic_rating_1);
+        } else if (rate >= 4.0 && rate < 4.6) {
+            rating.setImageResource(R.drawable.ic_rating_2);
+        } else if (rate >= 4.6) {
+            rating.setImageResource(R.drawable.ic_rating_3);
+        }
 
         name.setText(restaurant.getName());
         location.setText(restaurant.getAddress());
 
-        setChoiceBtn();
-        setCallBtn();
-        setLikeBtn();
-        setWebsiteBtn();
-        getWorkers();
+        setChoiceBtn(restaurant);
+        setCallBtn(restaurant);
+        setLikeBtn(restaurant);
+        setWebsiteBtn(restaurant);
+        getWorkers(restaurant);
     }
 
-    public void setChoiceBtn(){
+    private void setChoiceBtn(Restaurant restaurant) {
         choiceBtn.setOnClickListener(v -> {
-            workerViewModel.updateWorkerChoice(restaurant.getName());
+            workerViewModel.updateWorkerChoice(restaurant.getId());
         });
     }
 
-    private void setCallBtn(){
+    private void setCallBtn(Restaurant restaurant) {
         callBtn.setOnClickListener(v -> {
             String phoneNumber = restaurant.getPhoneNumber();
-            if (phoneNumber.isEmpty()){
+            if (phoneNumber.isEmpty()) {
                 Toast.makeText(getApplicationContext(), "no phone number available", Toast.LENGTH_LONG).show();
             } else {
                 Intent intent = new Intent(Intent.ACTION_CALL);
@@ -130,35 +122,60 @@ public class RestaurantDetailActivity extends AppCompatActivity {
         });
     }
 
-    private void setLikeBtn(){
-
-
+    private void setLikeBtn(Restaurant restaurant) {
+        likeBtn.setOnClickListener(v -> {
+            workerViewModel.getCurrentUser().observe(this, worker -> {
+                currentUser = worker;
+            });
+            List<Restaurant> favoriteRestaurant = currentUser.getFavoriteRestaurant();
+            if (favoriteRestaurant.contains(restaurant)) {
+                favoriteRestaurant.remove(restaurant);
+            } else {
+                favoriteRestaurant.add(restaurant);
+            }
+            workerViewModel.updateWorkerFavoriteList(favoriteRestaurant);
+        });
     }
 
-    private void setWebsiteBtn(){
+    private void setWebsiteBtn(Restaurant restaurant) {
         websiteBtn.setOnClickListener(v -> {
-        String url = restaurant.getWebsite();
-        if (url.isEmpty()){
-            Toast.makeText(getApplicationContext(), "no website available", Toast.LENGTH_LONG).show();
-        } else {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse(url));
+            String url = restaurant.getWebsite();
+            if (url.isEmpty()) {
+                Toast.makeText(getApplicationContext(), "no website available", Toast.LENGTH_LONG).show();
+            } else {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+            }
+        });
+    }
+
+    private void getWorkers(Restaurant restaurant) {
+        workerViewModel.getWorkersList().observe(this, workers -> {
+            setWorkerList(workers, restaurant);
+        });
+    }
+
+    private void setWorkerList(List<Worker> workers, Restaurant restaurant) {
+        List<Worker> participants = new ArrayList<>();
+        for (int i = 0; i < workers.size(); i++) {
+            if (workers.get(i).getRestaurantId() != null) {
+                if (workers.get(i).getRestaurantId().equals(restaurant.getId())) {
+                    participants.add(workers.get(i));
+                }
+            }
         }
-    });
+        setRecyclerView(participants);
     }
 
-
-    private void getWorkers() {
-        workerViewModel.getWorkersList().observe(this, this::setWorkerList);
+    private void setRecyclerView(List<Worker> participants) {
+        RestaurantDetailWorkersAdapter adapter = new RestaurantDetailWorkersAdapter(participants);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        recyclerView.setAdapter(adapter);
     }
 
-    private void setWorkerList(List<Worker> workers) {
-        WorkersAdapter workersAdapter = new WorkersAdapter(workers);
-        recyclerView.setAdapter(workersAdapter);
-    }
-
-    private void setWorkerViewModel() {
+    private void setViewModel() {
         ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this.getApplicationContext());
         this.workerViewModel = ViewModelProviders.of(this, viewModelFactory).get(WorkerViewModel.class);
+        this.restaurantViewModel = ViewModelProviders.of(this, viewModelFactory).get(RestaurantViewModel.class);
     }
 }

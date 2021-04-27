@@ -42,17 +42,21 @@
     <string name="default_info_title"></string>
     <string name="default_info_snippet"></string>
     <string name="pick_place"></string>
-    <string name="nearby_place" translatable="false">https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%1$s,%2$s&amp;radius=1500&amp;type=restaurant&amp;key=AIzaSyDvQNY3Hoc2titIZ-d0JfZh0w0uupLen2A</string>
 
     //Worker Fragment
     <string name="undecided"><i>%1$s hasn\'t decided yet</i> </string>
     <string name="decision">%1$s is eating at %2$s</string>
+    <string name="join">%1$s is joining</string>
 
     //Restaurant Fragment
     <string name="opening"> </string>
     <string name="closing"> </string>
 
-    //Places
+    //Google
+    <string name="api_key" translatable="false">&amp;key=AIzaSyDvQNY3Hoc2titIZ-d0JfZh0w0uupLen2A</string>
     <string name="place_base_url" translatable="false">https://maps.googleapis.com/maps/api/place/</string>
+    <string name="nearby_place" translatable="false">nearbysearch/json?location=%1$s,%2$s&amp;radius=1500&amp;type=restaurant&amp;</string>
+    <string name="photo" translatable="false">photo?maxwidth=400&amp;photoreference=%1$s</string>
+
 
 </resources>

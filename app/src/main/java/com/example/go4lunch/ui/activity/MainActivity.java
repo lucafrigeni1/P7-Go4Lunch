@@ -3,6 +3,7 @@ package com.example.go4lunch.ui.activity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -10,34 +11,49 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.R;
+import com.example.go4lunch.di.Injections;
+import com.example.go4lunch.di.ViewModelFactory;
+import com.example.go4lunch.models.Restaurant;
+import com.example.go4lunch.models.Worker;
 import com.example.go4lunch.ui.fragments.MapsFragment;
 import com.example.go4lunch.ui.fragments.RestaurantListFragment;
 import com.example.go4lunch.ui.fragments.WorkerListFragment;
-import com.example.go4lunch.ui.recyclerview.RestaurantsAdapter;
-import com.example.go4lunch.utils.BaseActivity;
+import com.example.go4lunch.viewmodel.RestaurantViewModel;
+import com.example.go4lunch.viewmodel.WorkerViewModel;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.gson.Gson;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.MenuItemCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProviders;
 
 import static com.example.go4lunch.R.color.white;
 
-public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final int SIGN_OUT_TASK = 10;
+
+    WorkerViewModel workerViewModel;
+    Worker currentUser = new Worker();
 
     FrameLayout frameLayout;
     MapsFragment mapsFragment;
@@ -60,6 +76,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         findViewById();
+        setViewModels();
         pageSelected();
         configureToolBar();
         setHeader();
@@ -126,6 +143,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         switch (id) {
             case R.id.your_lunch:
+                startRestaurantDetailActivity();
                 break;
             case R.id.settings:
                 startSettingsActivity();
@@ -136,6 +154,32 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
         this.drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void startRestaurantDetailActivity(){
+        workerViewModel.getCurrentUser().observe(this, worker -> {
+           currentUser = worker;
+        });
+
+        if (currentUser.getRestaurantId() != null) {
+            Intent intent = new Intent(this.getApplicationContext(), RestaurantDetailActivity.class);
+            intent.putExtra(RestaurantDetailActivity.EXTRA_RESTAURANT, currentUser.getRestaurantId());
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "You didn't make a choice", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void startSettingsActivity(){
+        finish();
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
+
+    private void signOutUserFromFirebase(){
+        AuthUI.getInstance()
+                .signOut(this)
+                .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(SIGN_OUT_TASK));
     }
 
     @Override
@@ -153,10 +197,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         headerName = header.findViewById(R.id.worker_name);
         headerMail = header.findViewById(R.id.worker_mail);
 
-        if (this.getCurrentUser() != null){
-            if (this.getCurrentUser().getPhotoUrl() != null){
+        FirebaseUser firebaseUser = workerViewModel.getFirebaseUser();
+
+        if (firebaseUser != null){
+            if (firebaseUser.getPhotoUrl() != null){
                 Glide.with(this)
-                        .load(this.getCurrentUser().getPhotoUrl())
+                        .load(firebaseUser.getPhotoUrl())
                         .apply(RequestOptions.circleCropTransform())
                         .into(headerPicture);
             } else
@@ -165,21 +211,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                         .apply(RequestOptions.circleCropTransform())
                         .into(headerPicture);
 
-            headerName.setText(this.getCurrentUser().getDisplayName());
-            headerMail.setText(this.getCurrentUser().getEmail());
+            headerName.setText(firebaseUser.getDisplayName());
+            headerMail.setText(firebaseUser.getEmail());
         }
-    }
-
-    private void startSettingsActivity(){
-        finish();
-        Intent intent = new Intent(this, SettingsActivity.class);
-        startActivity(intent);
-    }
-
-    private void signOutUserFromFirebase(){
-        AuthUI.getInstance()
-                .signOut(this)
-                .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(SIGN_OUT_TASK));
     }
 
     private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(final int origin){
@@ -231,4 +265,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         fragmentTransaction.replace(R.id.fragment_container, fragment).commit();
     }
 
+    private void setViewModels() {
+        ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this.getApplicationContext());
+        this.workerViewModel = ViewModelProviders.of(this, viewModelFactory).get(WorkerViewModel.class);
+    }
 }

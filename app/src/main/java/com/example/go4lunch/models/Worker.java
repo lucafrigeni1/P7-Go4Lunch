@@ -7,21 +7,21 @@ import androidx.annotation.Nullable;
 public class Worker {
 
     String id;
+    String restaurantId;
     String name;
     String mail;
     String picture;
-    String choice;
-    List<String> favoriteRestaurant;
+    List<Restaurant> favoriteRestaurant;
 
     public Worker() {
     }
 
-    public Worker(String id, String name, String mail, String picture, String choice, List<String> favoriteRestaurant) {
+    public Worker(String id, String restaurantId, String name, String mail, String picture, List<Restaurant> favoriteRestaurant) {
         this.id = id;
+        this.restaurantId = restaurantId;
         this.name = name;
         this.mail = mail;
         this.picture = picture;
-        this.choice = choice;
         this.favoriteRestaurant = favoriteRestaurant;
     }
 
@@ -31,6 +31,14 @@ public class Worker {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getRestaurantId() {
+        return restaurantId;
+    }
+
+    public void setRestaurantId(String id) {
+        this.restaurantId = id;
     }
 
     public String getName() {
@@ -57,19 +65,11 @@ public class Worker {
         this.picture = picture;
     }
 
-    public String getChoice() {
-        return choice;
-    }
-
-    public void setChoice(String choice) {
-        this.choice = choice;
-    }
-
-    public List<String> getFavoriteRestaurant() {
+    public List<Restaurant> getFavoriteRestaurant() {
         return favoriteRestaurant;
     }
 
-    public void setFavoriteRestaurant(List<String> favoriteRestaurant) {
+    public void setFavoriteRestaurant(List<Restaurant> favoriteRestaurant) {
         this.favoriteRestaurant = favoriteRestaurant;
     }
 }

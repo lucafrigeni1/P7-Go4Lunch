@@ -20,7 +20,11 @@ public class RestaurantViewModel extends ViewModel {
         return restaurantDataSource.getRestaurantsList();
     }
 
-    public LiveData<List<Restaurant>> getPlaces(Double longitude, Double latitude){
-        return restaurantDataSource.getPlaces(longitude,latitude);
+    public LiveData<Restaurant> getRestaurant(String id){
+        return restaurantDataSource.getRestaurant(id);
+    }
+
+    public void getPlaces(Double longitude, Double latitude){
+        restaurantDataSource.getPlaces(longitude,latitude);
     }
 }
