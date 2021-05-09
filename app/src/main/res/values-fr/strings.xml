@@ -23,23 +23,23 @@
     <string name="notification_1">On</string>
     <string name="notification_2">Off</string>
 
-    //Activity restaurant profil
-    <string name="restaurant_profil_button_1">APPEL</string>
-    <string name="restaurant_profil_button_2">LIKE</string>
-    <string name="restaurant_profil_button_3">SITE WEB</string>
-
     //Map Fragment
-    <string name="default_info_title"></string>
-    <string name="default_info_snippet"></string>
-    <string name="pick_place"></string>
 
     //Worker Fragment
     <string name="undecided"><i>%1$s n\'a pas encore décidé</i> </string>
     <string name="decision">%1$s mange à %2$s</string>
-    <string name="join">%1$s y mange</string>
+    <string name="join">%1$s y mange !</string>
 
     //Restaurant Fragment
-    <string name="opening"> </string>
-    <string name="closing"> </string>
+    <string name="always_open">Ouvert 24/24</string>
+    <string name="open_soon">Ouvre à %1$s</string>
+    <string name="already_open">Ouvert jusqu\'à %1$s</string>
+    <string name="closing_soon">Ferme bientot</string>
+    <string name="closed">Fermé</string>
+
+    //Activity restaurant profil
+    <string name="restaurant_profil_button_1">APPEL</string>
+    <string name="restaurant_profil_button_2">LIKE</string>
+    <string name="restaurant_profil_button_3">SITE WEB</string>
 
 </resources>

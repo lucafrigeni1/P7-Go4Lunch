@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final int SIGN_OUT_TASK = 10;
 
     WorkerViewModel workerViewModel;
-    Worker currentUser = new Worker();
+    Worker currentUser;
 
     FrameLayout frameLayout;
     MapsFragment mapsFragment;
@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         switch (id) {
             case R.id.your_lunch:
-                startRestaurantDetailActivity();
+                getCurrentUserChoice();
                 break;
             case R.id.settings:
                 startSettingsActivity();
@@ -156,14 +156,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    private void startRestaurantDetailActivity(){
-        workerViewModel.getCurrentUser().observe(this, worker -> {
-           currentUser = worker;
-        });
+    private void getCurrentUserChoice(){
+        workerViewModel.getCurrentUser().observe(this, this::startRestaurantDetailActivity);
+    }
 
-        if (currentUser.getRestaurantId() != null) {
+    private void startRestaurantDetailActivity(Worker worker){
+        if (worker.getRestaurantId() != null) {
             Intent intent = new Intent(this.getApplicationContext(), RestaurantDetailActivity.class);
-            intent.putExtra(RestaurantDetailActivity.EXTRA_RESTAURANT, currentUser.getRestaurantId());
+            intent.putExtra(RestaurantDetailActivity.EXTRA_RESTAURANT, worker.getRestaurantId());
             startActivity(intent);
         } else {
             Toast.makeText(this, "You didn't make a choice", Toast.LENGTH_LONG).show();

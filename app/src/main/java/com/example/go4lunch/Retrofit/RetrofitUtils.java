@@ -13,7 +13,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RetrofitUtils {
 
     public static final String BASE_URL = "https://maps.googleapis.com/maps/api/place/";
-    public static final String PHOTO_URL = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=";
+    public static final String NEARBY_SEARCH = "nearbysearch/json?location=";
+    public static final String NEARBY_SEARCH_PARAMETER = "&radius=1500&type=restaurant";
+    public static final String PHOTO_URL = "photo?maxwidth=400&photoreference=";
     public static final String API_KEY = "AIzaSyDvQNY3Hoc2titIZ-d0JfZh0w0uupLen2A";
 
     public static Retrofit getRetrofit(){

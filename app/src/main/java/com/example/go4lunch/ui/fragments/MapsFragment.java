@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.go4lunch.R;
 import com.example.go4lunch.di.Injections;
@@ -54,20 +55,17 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private WorkerViewModel workerViewModel;
 
     private GoogleMap map;
-    private PlacesClient placesClient;
-    FusedLocationProviderClient fusedLocationProviderClient;
 
-    private Location location;
+    FusedLocationProviderClient fusedLocationProviderClient;
+    Location location;
     double lat, lng;
-    LatLng latLng;
+    public static LatLng latLng;
 
     private static final int DEFAULT_ZOOM = 15;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private boolean locationPermissionGranted;
 
-    //https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=48.259386,7.454241&radius=1500&type=restaurant&key=AIzaSyDvQNY3Hoc2titIZ-d0JfZh0w0uupLen2A
     FloatingActionButton floatingActionButton;
-    private List<Restaurant> restaurantList;
 
     @Nullable
     @Override
@@ -92,7 +90,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     private void init() {
         Places.initialize(Objects.requireNonNull(this.getActivity()), getString(R.string.google_maps_key));
-        placesClient = Places.createClient(this.getActivity());
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this.getActivity());
 
@@ -108,11 +105,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-        setMapStyle();
-
-        getLocationPermission();
-        updateLocationUI();
         getDeviceLocation();
+        setMapStyle();
     }
 
     private void setMapStyle(){
@@ -132,33 +126,21 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        locationPermissionGranted = false;
-        if (requestCode == PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION) {
-            if (grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                locationPermissionGranted = true;
-            }
-        }
-    }
-
     //GET USER LOCATION AND ADAPT CAMERA POSITION
     private void getDeviceLocation() {
+        getLocationPermission();
         try {
             if (locationPermissionGranted) {
+                map.setMyLocationEnabled(true);
+                map.getUiSettings().setMyLocationButtonEnabled(false);
                 Task<Location> locationResult = fusedLocationProviderClient.getLastLocation();
                 locationResult.addOnCompleteListener(Objects.requireNonNull(this.getActivity()), task -> {
                     if (task.isSuccessful()) {
                         location = task.getResult();
-                //workerViewModel.getUserLocation(this.getActivity());
                         if (location != null) {
                             getLocation();
                             getPlaces();
                             getRestaurants();
-                            setMarkers();
                         }
                     }
                 });
@@ -180,15 +162,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void getRestaurants(){
-        restaurantViewModel.getRestaurantsList().observe(this, restaurants -> {
-            restaurantList = restaurants;
-        });
+        restaurantViewModel.restaurantsToShow().observe(this, this::setMarkers);
     }
 
-    private void setMarkers(){
+    private void setMarkers(List<Restaurant> restaurantList){
         for (int i = 0; i < restaurantList.size(); i++){
-            Gson gson = new Gson();
-            Log.e("workerList: ",gson.toJson(restaurantList.get(i).getWorkerList()));
             com.example.go4lunch.models.retrofit.Location location =
                     restaurantList.get(i).getLocation();
             LatLng latLng = new LatLng(location.getLat(), location.getLng());
@@ -233,23 +211,4 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
         return bitmap;
     }
-
-    private void updateLocationUI() {
-        if (map == null) {
-            return;
-        }
-        try {
-            if (locationPermissionGranted) {
-                map.setMyLocationEnabled(true);
-                map.getUiSettings().setMyLocationButtonEnabled(false);
-            } else {
-                location = null;
-                getLocationPermission();
-            }
-        } catch (SecurityException e) {
-            Log.e("Exception: %s", e.getMessage());
-        }
-    }
-
-
 }

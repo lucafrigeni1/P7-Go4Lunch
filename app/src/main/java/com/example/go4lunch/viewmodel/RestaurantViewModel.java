@@ -20,6 +20,10 @@ public class RestaurantViewModel extends ViewModel {
         return restaurantDataSource.getRestaurantsList();
     }
 
+    public LiveData<List<Restaurant>> restaurantsToShow(){
+        return restaurantDataSource.restaurantToShow();
+    }
+
     public LiveData<Restaurant> getRestaurant(String id){
         return restaurantDataSource.getRestaurant(id);
     }

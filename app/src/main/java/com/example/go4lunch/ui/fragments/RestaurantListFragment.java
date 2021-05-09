@@ -42,7 +42,7 @@ public class RestaurantListFragment extends Fragment {
     }
 
     private void getRestaurants() {
-        viewModel.getRestaurantsList().observe(this, this::setRestaurantList);
+        viewModel.restaurantsToShow().observe(this, this::setRestaurantList);
     }
 
     private void setRestaurantList(List<Restaurant> restaurants) {

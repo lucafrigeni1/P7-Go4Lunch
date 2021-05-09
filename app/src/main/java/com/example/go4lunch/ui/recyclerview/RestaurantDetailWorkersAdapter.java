@@ -1,5 +1,6 @@
 package com.example.go4lunch.ui.recyclerview;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,12 +48,14 @@ public class RestaurantDetailWorkersAdapter extends RecyclerView.Adapter<Restaur
 
         private final ImageView picture;
         private final TextView choice;
+        private final ImageView separation;
 
         public RestaurantDetailWorkersViewHolder(@NonNull View itemView) {
             super(itemView);
 
             picture = itemView.findViewById(R.id.worker_image);
             choice = itemView.findViewById(R.id.worker_choice);
+            separation = itemView.findViewById(R.id.separation);
         }
 
         public void bind(Worker worker) {
@@ -65,6 +68,8 @@ public class RestaurantDetailWorkersAdapter extends RecyclerView.Adapter<Restaur
                 picture.setImageResource(R.drawable.ic_baseline_circle_24);
 
             choice.setText(itemView.getContext().getString(R.string.join, worker.getName()));
+
+            separation.setVisibility(View.GONE);
         }
     }
 }

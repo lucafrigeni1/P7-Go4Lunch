@@ -1,5 +1,7 @@
 package com.example.go4lunch.models;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.List;
 
 import androidx.annotation.Nullable;
@@ -12,6 +14,7 @@ public class Worker {
     String mail;
     String picture;
     List<Restaurant> favoriteRestaurant;
+
 
     public Worker() {
     }

@@ -7,6 +7,7 @@ import android.widget.Toast;
 import com.example.go4lunch.R;
 import com.example.go4lunch.di.Injections;
 import com.example.go4lunch.di.ViewModelFactory;
+import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.models.Worker;
 import com.example.go4lunch.viewmodel.WorkerViewModel;
 import com.firebase.ui.auth.AuthUI;
@@ -14,6 +15,7 @@ import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -94,13 +96,14 @@ public class AuthenticationActivity extends AppCompatActivity {
     public void createWorkerInFirestore() {
         FirebaseUser firebaseUser = workerViewModel.getFirebaseUser();
         if (firebaseUser != null){
+            List<Restaurant> favoriteRestaurant = new ArrayList<>();
 
             Worker worker = new Worker(
                     firebaseUser.getUid(),
                     null,
                     firebaseUser.getDisplayName(),
                     firebaseUser.getEmail(),
-                    null, null);
+                    null, favoriteRestaurant);
 
             workerViewModel.createWorker(worker);
         }

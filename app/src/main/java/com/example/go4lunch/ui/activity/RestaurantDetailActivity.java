@@ -25,6 +25,7 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -40,6 +41,10 @@ public class RestaurantDetailActivity extends AppCompatActivity {
     private WorkerViewModel workerViewModel;
     private RestaurantViewModel restaurantViewModel;
 
+    RestaurantDetailWorkersAdapter adapter;
+
+    List<Restaurant> favoriteRestaurants = new ArrayList<>();
+
     private Worker currentUser;
 
     private ImageView picture;
@@ -52,6 +57,9 @@ public class RestaurantDetailActivity extends AppCompatActivity {
     private ImageButton websiteBtn;
     private RecyclerView recyclerView;
 
+    boolean isChosen;
+    boolean isFavorite;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,7 +67,7 @@ public class RestaurantDetailActivity extends AppCompatActivity {
 
         findViewById();
         setViewModel();
-        getRestaurant();
+        getCurrentUser();
     }
 
     private void findViewById() {
@@ -72,6 +80,13 @@ public class RestaurantDetailActivity extends AppCompatActivity {
         callBtn = findViewById(id.call_button);
         websiteBtn = findViewById(id.web_button);
         recyclerView = findViewById(id.participants);
+    }
+
+    private void getCurrentUser(){
+        workerViewModel.getCurrentUser().observe(this, worker -> {
+            currentUser = worker;
+            getRestaurant();
+        });
     }
 
     private void getRestaurant() {
@@ -97,54 +112,80 @@ public class RestaurantDetailActivity extends AppCompatActivity {
         name.setText(restaurant.getName());
         location.setText(restaurant.getAddress());
 
+        setIsChosen(restaurant);
+
+
         setChoiceBtn(restaurant);
         setCallBtn(restaurant);
         setLikeBtn(restaurant);
         setWebsiteBtn(restaurant);
+
         getWorkers(restaurant);
     }
 
+    private void setIsChosen(Restaurant restaurant){
+        if (currentUser.getRestaurantId() != null) {
+            isChosen = currentUser.getRestaurantId().equals(restaurant.getId());
+        }else {
+            isChosen = false;
+        }
+    }
+
     private void setChoiceBtn(Restaurant restaurant) {
+        if (isChosen){
+            choiceBtn.setImageResource(R.drawable.ic_baseline_check_24);
+        } else
+            choiceBtn.setImageResource(R.drawable.ic_baseline_uncheck_24);
+
         choiceBtn.setOnClickListener(v -> {
-            workerViewModel.updateWorkerChoice(restaurant.getId());
+            if (isChosen){
+                workerViewModel.updateWorkerChoice(null).observe(this, aBoolean -> getCurrentUser());
+            } else {
+                workerViewModel.updateWorkerChoice(restaurant.getId()).observe(this, aBoolean -> getCurrentUser());
+            }
         });
     }
 
     private void setCallBtn(Restaurant restaurant) {
         callBtn.setOnClickListener(v -> {
-            String phoneNumber = restaurant.getPhoneNumber();
-            if (phoneNumber.isEmpty()) {
+            if (restaurant.getPhoneNumber().isEmpty()) {
                 Toast.makeText(getApplicationContext(), "no phone number available", Toast.LENGTH_LONG).show();
             } else {
-                Intent intent = new Intent(Intent.ACTION_CALL);
-                intent.setData(Uri.parse(phoneNumber));
+                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + Uri.encode(restaurant.getPhoneNumber())));
+                startActivity(intent);
             }
         });
     }
 
     private void setLikeBtn(Restaurant restaurant) {
+        Gson gson = new Gson();
+        Log.e( "setLikeBtn1: ", gson.toJson(favoriteRestaurants));
+        favoriteRestaurants.addAll(currentUser.getFavoriteRestaurant());
+        Log.e( "setLikeBtn2: ", gson.toJson(favoriteRestaurants));
+        if (favoriteRestaurants.contains(restaurant)){
+            likeBtn.setImageResource(R.drawable.ic_baseline_orange_star_24);
+        } else
+            likeBtn.setImageResource(R.drawable.ic_baseline_star_outline_24);
+
         likeBtn.setOnClickListener(v -> {
-            workerViewModel.getCurrentUser().observe(this, worker -> {
-                currentUser = worker;
-            });
-            List<Restaurant> favoriteRestaurant = currentUser.getFavoriteRestaurant();
-            if (favoriteRestaurant.contains(restaurant)) {
-                favoriteRestaurant.remove(restaurant);
+            if (favoriteRestaurants.contains(restaurant)) {
+                favoriteRestaurants.remove(restaurant);
+                workerViewModel.updateWorkerFavoriteList(favoriteRestaurants);
             } else {
-                favoriteRestaurant.add(restaurant);
+                favoriteRestaurants.add(restaurant);
+                workerViewModel.updateWorkerFavoriteList(favoriteRestaurants);
             }
-            workerViewModel.updateWorkerFavoriteList(favoriteRestaurant);
         });
+
     }
 
     private void setWebsiteBtn(Restaurant restaurant) {
         websiteBtn.setOnClickListener(v -> {
-            String url = restaurant.getWebsite();
-            if (url.isEmpty()) {
+            if (restaurant.getWebsite().isEmpty()) {
                 Toast.makeText(getApplicationContext(), "no website available", Toast.LENGTH_LONG).show();
             } else {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(url));
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(restaurant.getWebsite()));
+                startActivity(intent);
             }
         });
     }
@@ -157,10 +198,10 @@ public class RestaurantDetailActivity extends AppCompatActivity {
 
     private void setWorkerList(List<Worker> workers, Restaurant restaurant) {
         List<Worker> participants = new ArrayList<>();
-        for (int i = 0; i < workers.size(); i++) {
-            if (workers.get(i).getRestaurantId() != null) {
-                if (workers.get(i).getRestaurantId().equals(restaurant.getId())) {
-                    participants.add(workers.get(i));
+        for (Worker worker : workers) {
+            if (worker.getRestaurantId() != null) {
+                if (worker.getRestaurantId().equals(restaurant.getId())) {
+                    participants.add(worker);
                 }
             }
         }
@@ -168,7 +209,7 @@ public class RestaurantDetailActivity extends AppCompatActivity {
     }
 
     private void setRecyclerView(List<Worker> participants) {
-        RestaurantDetailWorkersAdapter adapter = new RestaurantDetailWorkersAdapter(participants);
+        adapter = new RestaurantDetailWorkersAdapter(participants);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(adapter);
     }

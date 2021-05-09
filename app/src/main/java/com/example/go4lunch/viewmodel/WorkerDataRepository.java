@@ -29,18 +29,14 @@ import androidx.lifecycle.MutableLiveData;
 
 public class WorkerDataRepository {
 
-    private final CollectionReference workersCollectionReference =
+    public final static CollectionReference workersCollectionReference =
             FirebaseFirestore.getInstance().collection("Worker");
 
-    private final String currentUserId = FirebaseAuth.getInstance().getUid();
+    public final static String currentUserId = FirebaseAuth.getInstance().getUid();
 
     private final MutableLiveData<List<Worker>> dataWorkerList = new MutableLiveData<>();
     MutableLiveData<Worker> currentUser = new MutableLiveData<>();
-    private List<Worker> workerList = new ArrayList<>();
 
-    private final MutableLiveData<LatLng> dataLatlng = new MutableLiveData<>();
-    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
-    public boolean locationPermissionGranted;
 
     //CREATE
     public void createWorker(Worker worker) {
@@ -53,6 +49,7 @@ public class WorkerDataRepository {
     public LiveData<List<Worker>> getWorkersList() {
         workersCollectionReference.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                List<Worker> workerList = new ArrayList<>();
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     Worker worker = document.toObject(Worker.class);
                     workerList.add(worker);
@@ -64,13 +61,16 @@ public class WorkerDataRepository {
     }
 
     public LiveData<Worker> getCurrentUser() {
-        workersCollectionReference.document(currentUserId).get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Worker worker = task.getResult().toObject(Worker.class);
-                currentUser.setValue(worker);
+        MutableLiveData<Worker> result = new MutableLiveData<>();
+        workersCollectionReference
+                .document(currentUserId)
+                .get().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Worker worker = task.getResult().toObject(Worker.class);
+                        result.setValue(worker);
             }
         });
-        return currentUser;
+        return result;
     }
 
     public FirebaseUser getFirebaseUser(){
@@ -78,13 +78,21 @@ public class WorkerDataRepository {
     }
 
     //UPDATE
-    public void updateWorkerChoice(String restaurantId) {
+    public LiveData<Boolean> updateWorkerChoice(String restaurantId) {
+        MutableLiveData<Boolean> result = new MutableLiveData<>();
         workersCollectionReference
                 .document(currentUserId)
-                .update("restaurantId", restaurantId);
+                .update("restaurantId", restaurantId)
+                .addOnCompleteListener(task -> {
+                    result.postValue(true);
+                });
+        return result;
     }
 
+
     public void updateWorkerFavoriteList(List<Restaurant> favoriteRestaurants) {
-        workersCollectionReference.document(currentUserId).update("favoriteRestaurant", favoriteRestaurants);
+        workersCollectionReference
+                .document(currentUserId)
+                .update("favoriteRestaurant", favoriteRestaurants);
     }
 }

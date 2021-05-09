@@ -26,10 +26,6 @@ public class WorkerViewModel extends ViewModel {
         return workerDataSource.getFirebaseUser();
     }
 
-    //public LiveData<LatLng> getUserLocation(Activity activity){
-    //    return  workerDataSource.getUserLocation(activity);
-    //}
-
     public LiveData<Worker> getCurrentUser(){
        return workerDataSource.getCurrentUser();
     }
@@ -42,7 +38,11 @@ public class WorkerViewModel extends ViewModel {
         workerDataSource.createWorker(worker);
     }
 
-    public void updateWorkerChoice(String restaurantId){workerDataSource.updateWorkerChoice(restaurantId);}
+    public LiveData<Boolean> updateWorkerChoice(String restaurantId){
+        return workerDataSource.updateWorkerChoice(restaurantId);
+    }
 
-    public void  updateWorkerFavoriteList(List<Restaurant> favoriteRestaurants){workerDataSource.updateWorkerFavoriteList(favoriteRestaurants);}
+    public void updateWorkerFavoriteList(List<Restaurant> favoriteRestaurants){
+        workerDataSource.updateWorkerFavoriteList(favoriteRestaurants);
+    }
 }

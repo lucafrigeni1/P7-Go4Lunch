@@ -50,19 +50,18 @@ public class WorkerListFragment extends Fragment {
     }
 
     private void setRecyclerView(List<Worker> workers) {
-        getRestaurants();
-        WorkersAdapter adapter = new WorkersAdapter(workers, restaurantsList);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(), LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(adapter);
+        getRestaurants(workers);
     }
 
-    private void getRestaurants() {
+    private void getRestaurants(List<Worker> workers) {
         restaurantViewModel.getRestaurantsList().observe(this, restaurants -> {
             restaurantsList = restaurants;
+            WorkersAdapter adapter = new WorkersAdapter(workers, restaurantsList);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(), LinearLayoutManager.VERTICAL, false));
+            recyclerView.setAdapter(adapter);
         });
     }
 
-    //rename
     private void setViewModel() {
         ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this.getContext());
         this.workerviewModel = ViewModelProviders.of(this, viewModelFactory).get(WorkerViewModel.class);

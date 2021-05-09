@@ -22,4 +22,8 @@ public interface RetrofitApi {
             @Query("key") String key,
             @Query("place_id") String placeId);
 
+    @GET("nearbysearch/json")
+    Call<Places> getNextPageToken(
+            @Query("pagetoken") String page,
+            @Query("key") String key);
 }
