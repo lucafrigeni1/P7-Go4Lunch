@@ -1,8 +1,8 @@
 package com.example.go4lunch.ui.recyclerview;
 
 
+import android.content.Intent;
 import android.graphics.Typeface;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,11 +14,12 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.R;
 import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.models.Worker;
-import com.google.gson.Gson;
+import com.example.go4lunch.ui.activity.RestaurantDetailActivity;
 
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class WorkersAdapter extends RecyclerView.Adapter<WorkersAdapter.WorkersViewHolder> {
@@ -50,11 +51,13 @@ public class WorkersAdapter extends RecyclerView.Adapter<WorkersAdapter.WorkersV
 
     public class WorkersViewHolder extends RecyclerView.ViewHolder {
 
+        private final ConstraintLayout item;
         private final ImageView picture;
         private final TextView choice;
 
         public WorkersViewHolder(@NonNull View itemView) {
             super(itemView);
+            item = itemView.findViewById(R.id.worker_item);
             picture = itemView.findViewById(R.id.worker_image);
             choice = itemView.findViewById(R.id.worker_choice);
         }
@@ -62,6 +65,7 @@ public class WorkersAdapter extends RecyclerView.Adapter<WorkersAdapter.WorkersV
         public void bind(Worker worker) {
             setWorkerPicture(worker);
             setWorkerChoice(worker);
+            startRestaurantDetailActivity(worker);
         }
 
         private void setWorkerPicture(Worker worker) {
@@ -75,19 +79,28 @@ public class WorkersAdapter extends RecyclerView.Adapter<WorkersAdapter.WorkersV
         }
 
         private void setWorkerChoice(Worker worker) {
-            if ( worker.getRestaurantId() != null && !worker.getRestaurantId().equals("")) {
-                for (int i = 0; i < restaurants.size(); i++) {
-                    if (worker.getRestaurantId().equals(restaurants.get(i).getId())) {
+            if (worker.getRestaurantId() != null && !worker.getRestaurantId().isEmpty()) {
+                for (Restaurant restaurant : restaurants) {
+                    if (worker.getRestaurantId().equals(restaurant.getId())) {
                         choice.setText(itemView.getContext().getString(R.string.decision,
                                 worker.getName(),
-                                restaurants.get(i).getName()));
+                                restaurant.getName()));
                     }
                 }
-            } else{
+            } else {
                 choice.setText(itemView.getContext().getString(R.string.undecided, worker.getName()));
                 choice.setTextColor(itemView.getContext().getResources().getColor(R.color.quantum_grey));
                 choice.setTypeface(null, Typeface.ITALIC);
             }
+        }
+
+        private void startRestaurantDetailActivity(Worker worker) {
+            if (worker.getRestaurantId() != null && !worker.getRestaurantId().isEmpty())
+                item.setOnClickListener(v -> {
+                    Intent intent = new Intent(v.getContext(), RestaurantDetailActivity.class);
+                    intent.putExtra(RestaurantDetailActivity.EXTRA_RESTAURANT, worker.getRestaurantId());
+                    v.getContext().startActivity(intent);
+                });
         }
     }
 }

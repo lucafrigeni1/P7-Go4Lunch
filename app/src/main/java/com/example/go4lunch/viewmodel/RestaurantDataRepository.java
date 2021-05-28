@@ -1,5 +1,6 @@
 package com.example.go4lunch.viewmodel;
 
+import android.os.Build;
 import android.util.Log;
 
 import com.example.go4lunch.Retrofit.RetrofitApi;
@@ -19,15 +20,19 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.maps.android.SphericalUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.example.go4lunch.ui.fragments.MapsFragment.latLng;
 import static com.example.go4lunch.viewmodel.WorkerDataRepository.workersCollectionReference;
 
 public class RestaurantDataRepository {
@@ -51,7 +56,6 @@ public class RestaurantDataRepository {
 
     public void getPlaces(Double longitude, Double latitude) {
         String location = latitude + "," + longitude, radius = "1500", type = "restaurant", key = RetrofitUtils.API_KEY;
-
 
         retrofitApi.getNearbyPlaces(location, radius, type, key).enqueue(new Callback<Places>() {
             @Override
@@ -98,6 +102,9 @@ public class RestaurantDataRepository {
                             + placeDetail.getPhotos().get(0).getPhotoReference()
                             + "&key=" + RetrofitUtils.API_KEY;
                 }
+
+                int distance = 0;
+
                 List<Period> openHours = new ArrayList<>();
                 if (placeDetail.getOpeningHours() != null) {
                     openHours = placeDetail.getOpeningHours().getPeriods();
@@ -116,6 +123,7 @@ public class RestaurantDataRepository {
                         placeDetail.getWebsite(),
                         placeDetail.getFormattedPhoneNumber(),
                         placeDetail.getGeometry().getLocation(),
+                        distance,
                         openHours,
                         rating);
 
@@ -143,13 +151,14 @@ public class RestaurantDataRepository {
         return dataRestaurant;
     }
 
-    public LiveData<List<Restaurant>> getRestaurantsList() {
+
+    public LiveData<List<Restaurant>> getAllRestaurants() {
         MutableLiveData<List<Restaurant>> data = new MutableLiveData<>();
         getCollections(data, false);
         return data;
     }
 
-    public LiveData<List<Restaurant>> restaurantToShow(){
+    public LiveData<List<Restaurant>> getRestaurantToShow(){
         MutableLiveData<List<Restaurant>> data = new MutableLiveData<>();
         getCollections(data, true);
         return data;
@@ -167,15 +176,26 @@ public class RestaurantDataRepository {
                 restaurantList = new ArrayList<>();
                 for (QueryDocumentSnapshot document : task1.getResult()) {
                     Restaurant restaurant = document.toObject(Restaurant.class);
+                        updateDistance(restaurant);
                     restaurantList.add(restaurant);
                 }
+                Collections.sort(restaurantList, new Restaurant.RestaurantComparator());
                 checkRestaurantsParticipants(data, showNearby);
             });
         });
     }
 
-    public void checkRestaurantsParticipants(MutableLiveData<List<Restaurant>> data, boolean showNearby){
+    public void updateDistance(Restaurant restaurant){
+        LatLng userLatLng = latLng;
+        LatLng restaurantLatLng = new LatLng(
+                restaurant.getLocation().getLat(),
+                restaurant.getLocation().getLng());
 
+        int distanceBetweenUserRestaurant = (int) SphericalUtil.computeDistanceBetween(userLatLng, restaurantLatLng);
+        restaurant.setDistance(distanceBetweenUserRestaurant);
+    }
+
+    public void checkRestaurantsParticipants(MutableLiveData<List<Restaurant>> data, boolean showNearby){
         for (int i = 0; i < restaurantList.size(); i++) {
             List<Worker> participantList = new ArrayList<>();
             for (int a = 0; a < workerList.size(); a++) {
@@ -191,10 +211,11 @@ public class RestaurantDataRepository {
                     .document(restaurantList.get(i).getId())
                     .update("workerList", restaurantList.get(i).getWorkerList());
         }
+
         if (showNearby){
             getNearbyRestaurants(data);
         } else {
-            getRestaurants(data);
+            data.setValue(restaurantList);
         }
     }
 
@@ -215,10 +236,5 @@ public class RestaurantDataRepository {
             }
         }
         data.setValue(restaurantsToShow);
-    }
-
-    public void getRestaurants(MutableLiveData<List<Restaurant>> data){
-
-        data.setValue(restaurantList);
     }
 }

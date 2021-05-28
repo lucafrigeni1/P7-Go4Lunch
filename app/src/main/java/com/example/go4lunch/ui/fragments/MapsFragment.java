@@ -75,7 +75,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         floatingActionButton = view.findViewById(R.id.location_button);
 
         setViewModel();
-        init();
 
         setFloatingActionButton();
 
@@ -88,9 +87,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         this.workerViewModel = ViewModelProviders.of(this, viewModelFactory).get(WorkerViewModel.class);
     }
 
-    private void init() {
-        Places.initialize(Objects.requireNonNull(this.getActivity()), getString(R.string.google_maps_key));
+    @Override
+    public void onResume() {
+        super.onResume();
+        init();
+    }
 
+    private void init() {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this.getActivity());
 
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
@@ -105,12 +108,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-        getDeviceLocation();
         setMapStyle();
+        getDeviceLocation();
     }
 
     private void setMapStyle(){
         map.setMapStyle(MapStyleOptions.loadRawResourceStyle(Objects.requireNonNull(this.getContext()), R.raw.style_maps));
+        map.getUiSettings().setMapToolbarEnabled(false);
+        map.getUiSettings().setMyLocationButtonEnabled(false);
     }
 
     //ALLOW THE APP TO SEE THE USER LOCATION
@@ -132,7 +137,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         try {
             if (locationPermissionGranted) {
                 map.setMyLocationEnabled(true);
-                map.getUiSettings().setMyLocationButtonEnabled(false);
                 Task<Location> locationResult = fusedLocationProviderClient.getLastLocation();
                 locationResult.addOnCompleteListener(Objects.requireNonNull(this.getActivity()), task -> {
                     if (task.isSuccessful()) {

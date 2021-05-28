@@ -1,6 +1,11 @@
 package com.example.go4lunch.ui.activity;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.app.SearchManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,7 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,26 +22,39 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.R;
 import com.example.go4lunch.di.Injections;
 import com.example.go4lunch.di.ViewModelFactory;
-import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.models.Worker;
+import com.example.go4lunch.notifications.Notifications;
 import com.example.go4lunch.ui.fragments.MapsFragment;
 import com.example.go4lunch.ui.fragments.RestaurantListFragment;
 import com.example.go4lunch.ui.fragments.WorkerListFragment;
-import com.example.go4lunch.viewmodel.RestaurantViewModel;
 import com.example.go4lunch.viewmodel.WorkerViewModel;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.RectangularBounds;
+import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.gson.Gson;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Calendar;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.MenuItemCompat;
@@ -45,12 +62,17 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 
 import static com.example.go4lunch.R.color.white;
+import static com.example.go4lunch.Retrofit.RetrofitUtils.API_KEY;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final int SIGN_OUT_TASK = 10;
+    private final int AUTOCOMPLETE_REQUEST_CODE = 1;
 
     WorkerViewModel workerViewModel;
     Worker currentUser;
@@ -69,11 +91,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     TextView headerName;
     TextView headerMail;
 
-    SearchView searchView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sendNotifications();
+
         setContentView(R.layout.activity_main);
         findViewById();
         setViewModels();
@@ -82,7 +104,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setHeader();
     }
 
-    public void findViewById(){
+    public void autocomplete(){
+        Places.initialize(getApplicationContext(), API_KEY);
+        PlacesClient placesClient = Places.createClient(this);
+    }
+
+    public void startAutocompleteActivity(View view){
+
+    }
+
+
+    public void sendNotifications() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 12);
+        calendar.set(Calendar.MINUTE, 0);
+
+        //if (Calendar.getInstance() == calendar){
+            WorkRequest notifications = new OneTimeWorkRequest.Builder(Notifications.class).build();
+            WorkManager.getInstance(getApplicationContext()).enqueue(notifications);
+        //}
+    }
+
+
+    public void findViewById() {
         bottomNavigationView = findViewById(R.id.bottom_menu);
         frameLayout = findViewById(R.id.fragment_container);
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -91,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     //TOP BAR
-    private void configureToolBar(){
+    private void configureToolBar() {
         setSupportActionBar(toolbar);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -100,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 toolbar,
                 R.string.navigation_drawer_open,
                 R.string.navigation_drawer_close
-                );
+        );
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
         toggle.getDrawerArrowDrawable().setColor(getResources().getColor(white));
@@ -108,31 +152,62 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
     }
 
+    private void handleIntent(Intent intent) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            //use the query to search your data somehow
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.top_app_bar, menu);
-        MenuItem searchViewItem = menu.findItem(R.id.app_bar_search);
-        searchView = (SearchView) MenuItemCompat.getActionView(searchViewItem);
-
-        //setSearchView();
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.app_bar_search).getActionView();
 
 
-        return super.onCreateOptionsMenu(menu);
-    }
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 
-    private void setSearchView(){
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        searchView.setOnQueryTextListener(new androidx.appcompat.widget.SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                //Intent intent = new Autocomplete.IntentBuilder(
+                //        AutocompleteActivityMode.OVERLAY,
+                //        Arrays.asList(Place.Field.ID, Place.Field.NAME))
+                //        .setTypeFilter(TypeFilter.ESTABLISHMENT)
+                //        //.setLocationBias(latLng)
+                //        .setCountry("FR")
+                //        .build(getApplicationContext());
+                //startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+
+                return false;
+            }
 
             @Override
             public boolean onQueryTextSubmit(String query) {
                 return false;
             }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
-            }
         });
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                Log.i("Place: ", place.getName() + ", " + place.getId());
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                // TODO: Handle the error.
+                Status status = Autocomplete.getStatusFromIntent(data);
+                Log.i("Status ", status.getStatusMessage());
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     //DRAWER MENU
@@ -140,7 +215,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-
         switch (id) {
             case R.id.your_lunch:
                 getCurrentUserChoice();
@@ -156,11 +230,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    private void getCurrentUserChoice(){
+    private void getCurrentUserChoice() {
         workerViewModel.getCurrentUser().observe(this, this::startRestaurantDetailActivity);
     }
 
-    private void startRestaurantDetailActivity(Worker worker){
+    private void startRestaurantDetailActivity(Worker worker) {
         if (worker.getRestaurantId() != null) {
             Intent intent = new Intent(this.getApplicationContext(), RestaurantDetailActivity.class);
             intent.putExtra(RestaurantDetailActivity.EXTRA_RESTAURANT, worker.getRestaurantId());
@@ -170,13 +244,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void startSettingsActivity(){
+    private void startSettingsActivity() {
         finish();
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
     }
 
-    private void signOutUserFromFirebase(){
+    private void signOutUserFromFirebase() {
         AuthUI.getInstance()
                 .signOut(this)
                 .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(SIGN_OUT_TASK));
@@ -186,12 +260,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onBackPressed() {
         if (this.drawerLayout.isDrawerOpen(GravityCompat.START)) {
             this.drawerLayout.closeDrawer(GravityCompat.START);
+        //} else if (floatingSearchView.getVisibility()){
+
         } else {
             super.onBackPressed();
         }
     }
 
-    private void setHeader(){
+    private void setHeader() {
         View header = navigationView.inflateHeaderView(R.layout.drawer_menu_header);
         headerPicture = header.findViewById(R.id.profil_image);
         headerName = header.findViewById(R.id.worker_name);
@@ -199,8 +275,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         FirebaseUser firebaseUser = workerViewModel.getFirebaseUser();
 
-        if (firebaseUser != null){
-            if (firebaseUser.getPhotoUrl() != null){
+        if (firebaseUser != null) {
+            if (firebaseUser.getPhotoUrl() != null) {
                 Glide.with(this)
                         .load(firebaseUser.getPhotoUrl())
                         .apply(RequestOptions.circleCropTransform())
@@ -216,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(final int origin){
+    private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(final int origin) {
         return aVoid -> {
             if (origin == SIGN_OUT_TASK) {
                 startAuthenticationActivity();
@@ -232,11 +308,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //BOTTOM MENU
     @SuppressLint("NonConstantResourceId")
-    private void pageSelected(){
+    private void pageSelected() {
         initFragment();
         setFragment(mapsFragment);
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            switch (item.getItemId()){
+            switch (item.getItemId()) {
                 case R.id.map_page:
                     toolbar.setTitle(getString(R.string.toolbar_text_1));
                     setFragment(mapsFragment);

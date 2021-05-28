@@ -113,5 +113,4 @@ public class AuthenticationActivity extends AppCompatActivity {
         ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this);
         this.workerViewModel = ViewModelProviders.of(this, viewModelFactory).get(WorkerViewModel.class);
     }
-
 }

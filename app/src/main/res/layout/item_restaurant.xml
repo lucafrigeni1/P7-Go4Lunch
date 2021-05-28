@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/item">
+    android:id="@+id/restaurant_item">
 
     <ImageView
         android:id="@+id/restaurant_image"
@@ -18,7 +18,7 @@
 
     <TextView
         android:id="@+id/restaurant_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="@id/restaurant_image"
@@ -26,6 +26,8 @@
         android:textColor="@color/black"
         android:textStyle="bold"
         android:textSize="15sp"
+        android:maxLength="25"
+        android:ellipsize="end"
         tools:text="Le Zinc"/>
 
     <TextView
@@ -47,6 +49,8 @@
         app:layout_constraintBottom_toTopOf="@id/opening"
         android:textColor="@color/quantum_grey800"
         android:textSize="13sp"
+        android:maxLength="40"
+        android:ellipsize="end"
         tools:text="French - 12 rue du Faubourg Poissonnière"/>
 
     <TextView
@@ -57,7 +61,6 @@
         app:layout_constraintBottom_toBottomOf="@id/restaurant_image"
         android:textColor="@color/quantum_grey800"
         android:textSize="13sp"
-        android:textStyle="italic"
         tools:text="Open until 7pm"/>
 
     <ImageView

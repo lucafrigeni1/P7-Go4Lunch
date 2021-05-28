@@ -27,6 +27,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,10 +41,6 @@ public class RestaurantDetailActivity extends AppCompatActivity {
 
     private WorkerViewModel workerViewModel;
     private RestaurantViewModel restaurantViewModel;
-
-    RestaurantDetailWorkersAdapter adapter;
-
-    List<Restaurant> favoriteRestaurants = new ArrayList<>();
 
     private Worker currentUser;
 
@@ -113,14 +110,17 @@ public class RestaurantDetailActivity extends AppCompatActivity {
         location.setText(restaurant.getAddress());
 
         setIsChosen(restaurant);
-
-
+        setIsFavorite(restaurant);
         setChoiceBtn(restaurant);
         setCallBtn(restaurant);
         setLikeBtn(restaurant);
         setWebsiteBtn(restaurant);
 
         getWorkers(restaurant);
+    }
+
+    private void setIsFavorite(Restaurant restaurant){
+        isFavorite = currentUser.getFavoriteRestaurant().contains(restaurant);
     }
 
     private void setIsChosen(Restaurant restaurant){
@@ -158,25 +158,22 @@ public class RestaurantDetailActivity extends AppCompatActivity {
     }
 
     private void setLikeBtn(Restaurant restaurant) {
-        Gson gson = new Gson();
-        Log.e( "setLikeBtn1: ", gson.toJson(favoriteRestaurants));
-        favoriteRestaurants.addAll(currentUser.getFavoriteRestaurant());
-        Log.e( "setLikeBtn2: ", gson.toJson(favoriteRestaurants));
-        if (favoriteRestaurants.contains(restaurant)){
+        if (isFavorite){
             likeBtn.setImageResource(R.drawable.ic_baseline_orange_star_24);
         } else
             likeBtn.setImageResource(R.drawable.ic_baseline_star_outline_24);
 
         likeBtn.setOnClickListener(v -> {
-            if (favoriteRestaurants.contains(restaurant)) {
+            List<Restaurant> favoriteRestaurants = new ArrayList<>(currentUser.getFavoriteRestaurant());
+            Gson gson = new Gson();
+            Log.e("setLikeBtn: ", gson.toJson(favoriteRestaurants));
+            if (isFavorite) {
                 favoriteRestaurants.remove(restaurant);
-                workerViewModel.updateWorkerFavoriteList(favoriteRestaurants);
             } else {
                 favoriteRestaurants.add(restaurant);
-                workerViewModel.updateWorkerFavoriteList(favoriteRestaurants);
             }
+            workerViewModel.updateWorkerFavoriteList(favoriteRestaurants).observe(this, aBoolean -> getCurrentUser());
         });
-
     }
 
     private void setWebsiteBtn(Restaurant restaurant) {
@@ -209,7 +206,7 @@ public class RestaurantDetailActivity extends AppCompatActivity {
     }
 
     private void setRecyclerView(List<Worker> participants) {
-        adapter = new RestaurantDetailWorkersAdapter(participants);
+        RestaurantDetailWorkersAdapter adapter = new RestaurantDetailWorkersAdapter(participants);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(adapter);
     }

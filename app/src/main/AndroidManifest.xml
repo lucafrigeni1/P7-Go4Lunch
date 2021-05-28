@@ -24,16 +24,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.activity.MainActivity"/>
+        <activity
+            android:name=".ui.activity.MainActivity"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable"/>
+        </activity>
         <activity android:name=".ui.activity.RestaurantDetailActivity"/>
         <activity android:name=".ui.activity.SettingsActivity"/>
 
-
-        <service android:name=".notifications.Notifications" >
+        <receiver android:name=".notifications.Notifications" >
         <intent-filter>
             <action android:name="com.google.firebase.MESSAGING_EVENT"/>
         </intent-filter>
-        </service>
+        </receiver>
     </application>
 
 </manifest>

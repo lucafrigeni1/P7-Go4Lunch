@@ -15,11 +15,51 @@
         android:id="@+id/top_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingVertical="5dp"
         app:layout_constraintTop_toTopOf="parent"
         app:menu="@menu/top_app_bar"
         app:title="@string/toolbar_text_1"
         android:background="@color/main"
-        app:titleTextColor="@color/white" />
+        app:titleTextColor="@color/white">
+    </androidx.appcompat.widget.Toolbar>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/top_toolbar"
+        android:layout_margin="8dp"
+        android:background="@color/white"
+        android:visibility="visible">
+
+        <ImageButton
+            android:id="@+id/search_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:paddingHorizontal="15dp"
+            android:src="@drawable/ic_search_black_24dp"
+            android:background="@color/white"/>
+
+        <EditText
+            android:id="@+id/search_text"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            app:layout_constraintStart_toEndOf="@+id/search_btn"
+            app:layout_constraintEnd_toStartOf="@+id/micro_btn"
+            android:hint="search a restaurant"/>
+
+        <ImageButton
+            android:id="@+id/micro_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:paddingHorizontal="15dp"
+            android:src="@drawable/ic_baseline_mic_24"
+            android:background="@color/white"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <FrameLayout
         android:id="@+id/fragment_container"

@@ -2,99 +2,120 @@ package com.example.go4lunch.notifications;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.os.Build;
+import android.util.Log;
 
 import com.example.go4lunch.R;
 import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.models.Worker;
-import com.example.go4lunch.ui.activity.MainActivity;
-import com.google.firebase.messaging.FirebaseMessagingService;
-import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.Gson;
 
+import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.work.WorkerParameters;
 
 import static com.example.go4lunch.viewmodel.RestaurantDataRepository.restaurantsCollectionReference;
 import static com.example.go4lunch.viewmodel.WorkerDataRepository.currentUserId;
 import static com.example.go4lunch.viewmodel.WorkerDataRepository.workersCollectionReference;
 
-public class Notifications extends FirebaseMessagingService {
+public class Notifications extends androidx.work.Worker {
 
-    private final int NOTIFICATION_ID = 007;
-    private final String NOTIFICATION_TAG = "GO4LUNCH";
+    public static String channelId = "channel id";
+    Worker currentUser;
+    Restaurant choice;
+    List<String> participants;
 
-
-    @Override
-    public void onMessageReceived(RemoteMessage remoteMessage) {
-        if (remoteMessage.getNotification() != null) {
-            this.getCurrentUser();
-        }
+    public Notifications(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
     }
 
-    private void sendVisualNotification(Restaurant restaurant) {
+    @NonNull
+    @Override
+    public Result doWork() {
+        getCurrentUser(this.getApplicationContext());
+        return Result.success();
+    }
 
-        // 1 - Create an Intent that will be shown when user will click on the Notification
-        Intent intent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+    public void sendVisualNotification(Context context) {
+        //for (Worker worker : choice.getWorkerList()) {
+        //    //if (!worker.equals(currentUser)) {
+        //        participants.add(worker.getName());
+        //    //}
+        //}
 
-        getCurrentUser();
-        String name = restaurant.getName();
-        String address = restaurant.getAddress();
-        //String participants = restaurant.getWorkerList() + "is joining";
+        String name = choice.getName();
+        String address = choice.getAddress();
+        String coworkers;
+        if (participants != null && !participants.isEmpty()) {
+            coworkers = "coworkers :" + participants;
+        } else
+            coworkers = "";
 
-        // 2 - Create a Style for the Notification
+
         NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
         inboxStyle.setBigContentTitle(name);
         inboxStyle.addLine(address);
-        //inboxStyle.addLine(participants);
+        if (!coworkers.isEmpty()) {
+            inboxStyle.addLine(coworkers);
+        }
 
-        // 3 - Create a Channel (Android 8)
-        String channelId = "channel id";
-
-        // 4 - Build a Notification object
         NotificationCompat.Builder notificationBuilder =
-                new NotificationCompat.Builder(this, channelId)
+                new NotificationCompat.Builder(context, channelId)
                         .setSmallIcon(R.drawable.ic_baseline_dinner_dining_24)
-                        .setContentTitle(getString(R.string.app_name))
+                        .setContentTitle(context.getString(R.string.app_name))
                         .setContentText(address)
                         .setAutoCancel(true)
                         .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                        .setContentIntent(pendingIntent)
+                        //.setContentIntent(pendingIntent)
                         .setStyle(inboxStyle);
 
-        // 5 - Add the Notification to the Notification Manager and show it.
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        int NOTIFICATION_ID = 007;
+        String NOTIFICATION_TAG = "GO4LUNCH";
 
-        // 6 - Support Version >= Android 8
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence channelName = "Message provenant de Firebase";
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel mChannel = new NotificationChannel(channelId, channelName, importance);
-            notificationManager.createNotificationChannel(mChannel);
-        }
+            NotificationChannel mChannel = new NotificationChannel(
+                    channelId,
+                    "notification",
+                    NotificationManager.IMPORTANCE_HIGH);
 
-        // 7 - Show notification
+
+            notificationManager.createNotificationChannel(mChannel);
+
+        }
         notificationManager.notify(NOTIFICATION_TAG, NOTIFICATION_ID, notificationBuilder.build());
     }
 
-    private void getCurrentUser() {
+    public void setNotificationChannel(){
+    }
+
+    public void getCurrentUser(Context context) {
         workersCollectionReference
                 .document(currentUserId).get()
                 .addOnCompleteListener(task -> {
-                    Worker worker = task.getResult().toObject(Worker.class);
-                    getRestaurant(worker);
+                    currentUser = task.getResult().toObject(Worker.class);
+                    getRestaurant(context);
                 });
     }
 
-    private void getRestaurant(Worker worker) {
+
+    public void getRestaurant(Context context) {
         restaurantsCollectionReference
-                .document(worker.getRestaurantId()).get()
+                .document(currentUser.getRestaurantId()).get()
                 .addOnCompleteListener(task -> {
-                   Restaurant restaurant = task.getResult().toObject(Restaurant.class);
-                   sendVisualNotification(restaurant);
+                    choice = task.getResult().toObject(Restaurant.class);
+                    sendVisualNotification(context);
                 });
     }
+
+
 }

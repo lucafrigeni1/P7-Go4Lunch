@@ -42,7 +42,7 @@ public class WorkerViewModel extends ViewModel {
         return workerDataSource.updateWorkerChoice(restaurantId);
     }
 
-    public void updateWorkerFavoriteList(List<Restaurant> favoriteRestaurants){
-        workerDataSource.updateWorkerFavoriteList(favoriteRestaurants);
+    public LiveData<Boolean> updateWorkerFavoriteList(List<Restaurant> favoriteRestaurants){
+        return workerDataSource.updateWorkerFavoriteList(favoriteRestaurants);
     }
 }

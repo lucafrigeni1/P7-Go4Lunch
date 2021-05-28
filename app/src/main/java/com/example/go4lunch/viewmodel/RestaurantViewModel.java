@@ -1,7 +1,6 @@
 package com.example.go4lunch.viewmodel;
 
 import com.example.go4lunch.models.Restaurant;
-import com.example.go4lunch.models.Worker;
 
 import java.util.List;
 
@@ -17,11 +16,11 @@ public class RestaurantViewModel extends ViewModel {
     }
 
     public LiveData<List<Restaurant>> getRestaurantsList(){
-        return restaurantDataSource.getRestaurantsList();
+        return restaurantDataSource.getAllRestaurants();
     }
 
     public LiveData<List<Restaurant>> restaurantsToShow(){
-        return restaurantDataSource.restaurantToShow();
+        return restaurantDataSource.getRestaurantToShow();
     }
 
     public LiveData<Restaurant> getRestaurant(String id){

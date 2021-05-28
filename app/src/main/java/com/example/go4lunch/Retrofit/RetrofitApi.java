@@ -26,4 +26,9 @@ public interface RetrofitApi {
     Call<Places> getNextPageToken(
             @Query("pagetoken") String page,
             @Query("key") String key);
+
+    @GET("autocomplete/json")
+    Call<Places> getAutocomplete(
+            @Query("input") String page,
+            @Query("key") String key);
 }

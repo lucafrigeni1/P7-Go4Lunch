@@ -1,12 +1,10 @@
 package com.example.go4lunch.models;
 
-import com.google.android.gms.maps.model.LatLng;
-
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
-import androidx.annotation.Nullable;
-
-public class Worker {
+public class Worker{
 
     String id;
     String restaurantId;
@@ -15,11 +13,15 @@ public class Worker {
     String picture;
     List<Restaurant> favoriteRestaurant;
 
-
     public Worker() {
     }
 
-    public Worker(String id, String restaurantId, String name, String mail, String picture, List<Restaurant> favoriteRestaurant) {
+    public Worker(String id,
+                  String restaurantId,
+                  String name,
+                  String mail,
+                  String picture,
+                  List<Restaurant> favoriteRestaurant) {
         this.id = id;
         this.restaurantId = restaurantId;
         this.name = name;
@@ -40,10 +42,6 @@ public class Worker {
         return restaurantId;
     }
 
-    public void setRestaurantId(String id) {
-        this.restaurantId = id;
-    }
-
     public String getName() {
         return name;
     }
@@ -52,27 +50,14 @@ public class Worker {
         this.name = name;
     }
 
-    public String getMail() {
-        return mail;
-    }
-
-    public void setMail(String mail) {
-        this.mail = mail;
-    }
-
     public String getPicture() {
         return picture;
     }
 
-    public void setPicture(String picture) {
-        this.picture = picture;
-    }
-
     public List<Restaurant> getFavoriteRestaurant() {
+        if (favoriteRestaurant == null){
+            return new ArrayList<>();
+        } else
         return favoriteRestaurant;
-    }
-
-    public void setFavoriteRestaurant(List<Restaurant> favoriteRestaurant) {
-        this.favoriteRestaurant = favoriteRestaurant;
     }
 }

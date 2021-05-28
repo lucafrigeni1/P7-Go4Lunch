@@ -20,7 +20,8 @@
         app:layout_constraintBottom_toTopOf="@+id/view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/restaurant_image"
-        app:backgroundTint="@color/white" />
+        app:backgroundTint="@color/white"
+        app:tint="@null"/>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/view"
