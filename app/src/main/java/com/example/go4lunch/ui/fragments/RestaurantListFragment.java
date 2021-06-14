@@ -1,7 +1,6 @@
 package com.example.go4lunch.ui.fragments;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +12,7 @@ import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.ui.recyclerview.RestaurantsAdapter;
 import com.example.go4lunch.viewmodel.RestaurantViewModel;
 
+import java.util.Collections;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -42,10 +42,11 @@ public class RestaurantListFragment extends Fragment {
     }
 
     private void getRestaurants() {
-        viewModel.restaurantsToShow().observe(this, this::setRestaurantList);
+        viewModel.getRestaurantsList().observe(this, this::setRestaurantList);
     }
 
-    private void setRestaurantList(List<Restaurant> restaurants) {
+    public void setRestaurantList(List<Restaurant> restaurants) {
+        Collections.sort(restaurants, new Restaurant.RestaurantComparator());
         RestaurantsAdapter adapter = new RestaurantsAdapter(restaurants);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(), LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(adapter);

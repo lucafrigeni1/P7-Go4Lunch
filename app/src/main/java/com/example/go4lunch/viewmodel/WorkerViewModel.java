@@ -38,8 +38,8 @@ public class WorkerViewModel extends ViewModel {
         workerDataSource.createWorker(worker);
     }
 
-    public LiveData<Boolean> updateWorkerChoice(String restaurantId){
-        return workerDataSource.updateWorkerChoice(restaurantId);
+    public LiveData<Boolean> updateWorkerChoice(Restaurant restaurant){
+        return workerDataSource.updateWorkerChoice(restaurant);
     }
 
     public LiveData<Boolean> updateWorkerFavoriteList(List<Restaurant> favoriteRestaurants){

@@ -14,6 +14,8 @@
     <string name="drawer_text_1">TON CHOIX</string>
     <string name="drawer_text_2">REGLAGES</string>
     <string name="drawer_text_3">DECONNEXION</string>
+    <string name="search_bar">rechercher un restaurant</string>
+    <string name="choice">Vous n\'avez pas fait de choix</string>
 
     //Activity settings
     <string name="notification_title">Notification :</string>
@@ -22,6 +24,10 @@
     <string name="language_2">Français</string>
     <string name="notification_1">On</string>
     <string name="notification_2">Off</string>
+
+    //Notification
+    <string name="coworkers">collègues : </string>
+    <string name="nobody">personne ne vous rejoins</string>
 
     //Map Fragment
 

@@ -1,21 +1,20 @@
 package com.example.go4lunch.viewmodel;
 
-import android.os.Build;
+import android.util.Log;
 
 import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.models.Worker;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
-import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -24,8 +23,9 @@ public class WorkerDataRepository {
     public final static CollectionReference workersCollectionReference =
             FirebaseFirestore.getInstance().collection("Worker");
 
-    public final static String currentUserId = FirebaseAuth.getInstance().getUid();
+    public static String currentUserId;
 
+    public static LatLng latLng;
 
     //CREATE
     public void createWorker(Worker worker) {
@@ -44,7 +44,6 @@ public class WorkerDataRepository {
                     Worker worker = document.toObject(Worker.class);
                     workerList.add(worker);
                 }
-                Collections.sort(workerList,(o1, o2) -> o2.getRestaurantId().compareTo(o1.getRestaurantId()));
                 dataWorkerList.setValue(workerList);
             }
         });
@@ -53,12 +52,13 @@ public class WorkerDataRepository {
 
     public LiveData<Worker> getCurrentUser() {
         MutableLiveData<Worker> result = new MutableLiveData<>();
-        workersCollectionReference
-                .document(currentUserId)
-                .get().addOnCompleteListener(task -> {
+        workersCollectionReference.document(currentUserId).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 Worker worker = task.getResult().toObject(Worker.class);
                 result.setValue(worker);
+                Gson gson = new Gson();
+                Log.e("Worker: ", gson.toJson(worker));
+                Log.e("WorkerID: ", currentUserId);
             }
         });
         return result;
@@ -69,11 +69,11 @@ public class WorkerDataRepository {
     }
 
     //UPDATE
-    public LiveData<Boolean> updateWorkerChoice(String restaurantId) {
+    public LiveData<Boolean> updateWorkerChoice(Restaurant restaurant) {
         MutableLiveData<Boolean> result = new MutableLiveData<>();
         workersCollectionReference
                 .document(currentUserId)
-                .update("restaurantId", restaurantId)
+                .update("restaurant", restaurant)
                 .addOnCompleteListener(task -> result.postValue(true));
         return result;
     }

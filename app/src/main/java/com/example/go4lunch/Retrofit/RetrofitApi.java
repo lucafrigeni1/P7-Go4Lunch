@@ -1,5 +1,6 @@
 package com.example.go4lunch.Retrofit;
 
+import com.example.go4lunch.models.retrofit.Autocomplete;
 import com.example.go4lunch.models.retrofit.PlaceDetail;
 import com.example.go4lunch.models.retrofit.Places;
 
@@ -28,7 +29,10 @@ public interface RetrofitApi {
             @Query("key") String key);
 
     @GET("autocomplete/json")
-    Call<Places> getAutocomplete(
-            @Query("input") String page,
+    Call<Autocomplete> getAutocomplete(
+            @Query("input") String input,
+            @Query("location") String location,
+            @Query("radius") String radius,
+            @Query("type") String type,
             @Query("key") String key);
 }

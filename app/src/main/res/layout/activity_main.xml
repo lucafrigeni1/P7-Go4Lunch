@@ -23,7 +23,20 @@
         app:titleTextColor="@color/white">
     </androidx.appcompat.widget.Toolbar>
 
+    <ImageButton
+        android:id="@+id/top_bar_search_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/top_toolbar"
+        app:layout_constraintBottom_toBottomOf="@id/top_toolbar"
+        app:layout_constraintEnd_toEndOf="@id/top_toolbar"
+        android:padding="15dp"
+        android:layout_marginEnd="5dp"
+        android:src="@drawable/ic_baseline_search_24"
+        android:background="@color/fui_transparent"/>
+
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/search_bar"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -32,9 +45,9 @@
         app:layout_constraintBottom_toBottomOf="@id/top_toolbar"
         android:layout_margin="8dp"
         android:background="@color/white"
-        android:visibility="visible">
+        android:visibility="gone">
 
-        <ImageButton
+        <ImageView
             android:id="@+id/search_btn"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -48,17 +61,11 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             app:layout_constraintStart_toEndOf="@+id/search_btn"
-            app:layout_constraintEnd_toStartOf="@+id/micro_btn"
-            android:hint="search a restaurant"/>
-
-        <ImageButton
-            android:id="@+id/micro_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:paddingHorizontal="15dp"
-            android:src="@drawable/ic_baseline_mic_24"
-            android:background="@color/white"/>
+            android:background="@null"
+            android:hint="@string/search_bar"
+            android:maxLength="30"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <FrameLayout

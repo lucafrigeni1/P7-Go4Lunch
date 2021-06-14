@@ -1,38 +1,37 @@
 package com.example.go4lunch.viewmodel;
 
-import android.os.Build;
 import android.util.Log;
 
 import com.example.go4lunch.Retrofit.RetrofitApi;
 import com.example.go4lunch.Retrofit.RetrofitUtils;
 import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.models.Worker;
+import com.example.go4lunch.models.retrofit.Autocomplete;
 import com.example.go4lunch.models.retrofit.Period;
 import com.example.go4lunch.models.retrofit.PlaceDetail;
 import com.example.go4lunch.models.retrofit.Places;
+import com.example.go4lunch.models.retrofit.Predictions;
 import com.example.go4lunch.models.retrofit.Result;
 import com.example.go4lunch.models.retrofit.ResultDetails;
-import com.example.go4lunch.ui.fragments.MapsFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.gson.Gson;
 import com.google.maps.android.SphericalUtil;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.example.go4lunch.ui.fragments.MapsFragment.latLng;
+import static com.example.go4lunch.viewmodel.WorkerDataRepository.latLng;
 import static com.example.go4lunch.viewmodel.WorkerDataRepository.workersCollectionReference;
 
 public class RestaurantDataRepository {
@@ -42,9 +41,9 @@ public class RestaurantDataRepository {
 
     RetrofitApi retrofitApi = RetrofitUtils.getRetrofit().create(RetrofitApi.class);
 
-    List<Result> places = new ArrayList<>();
     private static List<Worker> workerList = new ArrayList<>();
     private static List<Restaurant> restaurantList = new ArrayList<>();
+    private static List<Restaurant> filteredRestaurantList = new ArrayList<>();
 
 
     //CREATE
@@ -55,9 +54,10 @@ public class RestaurantDataRepository {
     }
 
     public void getPlaces(Double longitude, Double latitude) {
-        String location = latitude + "," + longitude, radius = "1500", type = "restaurant", key = RetrofitUtils.API_KEY;
+        List<Result> places = new ArrayList<>();
 
-        retrofitApi.getNearbyPlaces(location, radius, type, key).enqueue(new Callback<Places>() {
+        retrofitApi.getNearbyPlaces(latitude + "," + longitude, "1500", "restaurant", RetrofitUtils.API_KEY)
+                .enqueue(new Callback<Places>() {
             @Override
             public void onResponse(@NonNull Call<Places> call, @NonNull Response<Places> response) {
                 String nextPage = response.body().getNextPageToken();
@@ -151,90 +151,89 @@ public class RestaurantDataRepository {
         return dataRestaurant;
     }
 
-
-    public LiveData<List<Restaurant>> getAllRestaurants() {
+    public LiveData<List<Restaurant>> getRestaurantList(){
         MutableLiveData<List<Restaurant>> data = new MutableLiveData<>();
-        getCollections(data, false);
-        return data;
-    }
-
-    public LiveData<List<Restaurant>> getRestaurantToShow(){
-        MutableLiveData<List<Restaurant>> data = new MutableLiveData<>();
-        getCollections(data, true);
-        return data;
-    }
-
-    public void getCollections(MutableLiveData<List<Restaurant>> data, boolean showNearby){
         workersCollectionReference.get().addOnCompleteListener(task -> {
             workerList = new ArrayList<>();
             for (QueryDocumentSnapshot document : task.getResult()) {
                 Worker worker = document.toObject(Worker.class);
                 workerList.add(worker);
             }
+            getRestaurantsFromFirebase(data, workerList);
+        });
+        return data;
+    }
 
-            restaurantsCollectionReference.get().addOnCompleteListener(task1 -> {
-                restaurantList = new ArrayList<>();
-                for (QueryDocumentSnapshot document : task1.getResult()) {
-                    Restaurant restaurant = document.toObject(Restaurant.class);
-                        updateDistance(restaurant);
-                    restaurantList.add(restaurant);
+    public LiveData<List<Restaurant>> getFilteredRestaurantList(String input){
+        MutableLiveData<List<Restaurant>> data = new MutableLiveData<>();
+        List<Predictions> predictionsList = new ArrayList<>();
+
+        workersCollectionReference.get().addOnCompleteListener(task -> {
+            workerList = new ArrayList<>();
+            for (QueryDocumentSnapshot document : task.getResult()) {
+                Worker worker = document.toObject(Worker.class);
+                workerList.add(worker);
+            }
+            getRestaurantsFromFirebase(data, workerList);
+            // TODO
+
+            retrofitApi.getAutocomplete(input,
+                    latLng.latitude + "," + latLng.longitude,
+                    "1500",
+                    "establishment",
+                    RetrofitUtils.API_KEY).enqueue(new Callback<Autocomplete>() {
+                @Override
+                public void onResponse(Call<Autocomplete> call, Response<Autocomplete> response) {
+                    filteredRestaurantList = new ArrayList<>();
+                    predictionsList.addAll(response.body().getPredictions());
+
+                    for (Restaurant restaurant : restaurantList){
+                        for (Predictions predictions: predictionsList){
+                            if (restaurant.getId().equals(predictions.getPlaceId())){
+                                filteredRestaurantList.add(restaurant);
+                            }
+                        }
+                    }
+                    data.setValue(filteredRestaurantList);
                 }
-                Collections.sort(restaurantList, new Restaurant.RestaurantComparator());
-                checkRestaurantsParticipants(data, showNearby);
+                @Override
+                public void onFailure(Call<Autocomplete> call, Throwable t) {
+                }
             });
         });
+        return data;
     }
 
-    public void updateDistance(Restaurant restaurant){
-        LatLng userLatLng = latLng;
-        LatLng restaurantLatLng = new LatLng(
-                restaurant.getLocation().getLat(),
-                restaurant.getLocation().getLng());
+    public void getRestaurantsFromFirebase(MutableLiveData<List<Restaurant>> data, List<Worker> workerList){
+        restaurantsCollectionReference.get().addOnCompleteListener(task -> {
+            restaurantList = new ArrayList<>();
+            for (QueryDocumentSnapshot document : task.getResult()) {
+                Restaurant restaurant = document.toObject(Restaurant.class);
 
-        int distanceBetweenUserRestaurant = (int) SphericalUtil.computeDistanceBetween(userLatLng, restaurantLatLng);
-        restaurant.setDistance(distanceBetweenUserRestaurant);
-    }
-
-    public void checkRestaurantsParticipants(MutableLiveData<List<Restaurant>> data, boolean showNearby){
-        for (int i = 0; i < restaurantList.size(); i++) {
-            List<Worker> participantList = new ArrayList<>();
-            for (int a = 0; a < workerList.size(); a++) {
-                if (workerList.get(a).getRestaurantId() != null) {
-                    if (workerList.get(a).getRestaurantId().equals(restaurantList.get(i).getId())) {
-                        participantList.add(workerList.get(a));
+                List<Worker> participantList = new ArrayList<>();
+                for (Worker worker : workerList) {
+                    if (worker.getRestaurant() != null) {
+                        if (worker.getRestaurant().getId().equals(restaurant.getId())) {
+                            participantList.add(worker);
+                        }
                     }
                 }
+                restaurant.setWorkerList(participantList);
+                restaurantsCollectionReference.document(restaurant.getId()).update("workerList", participantList);
+
+                restaurant.setDistance((int) SphericalUtil.computeDistanceBetween(latLng,
+                        new LatLng(restaurant.getLocation().getLat(), restaurant.getLocation().getLng())));
+
+                restaurantList.add(restaurant);
+
+                for (Restaurant restaurant1 : restaurantList){
+                    if (restaurant1.getDistance() > 750){
+                        restaurantList.remove(restaurant1);
+                    }
+                }
+
             }
-            restaurantList.get(i).setWorkerList(participantList);
-
-            restaurantsCollectionReference
-                    .document(restaurantList.get(i).getId())
-                    .update("workerList", restaurantList.get(i).getWorkerList());
-        }
-
-        if (showNearby){
-            getNearbyRestaurants(data);
-        } else {
             data.setValue(restaurantList);
-        }
-    }
-
-    public void getNearbyRestaurants(MutableLiveData<List<Restaurant>> data){
-        List<Restaurant> restaurantsToShow = new ArrayList<>();
-        for (Restaurant restaurant: restaurantList){
-
-            LatLng userLatLng = MapsFragment.latLng;
-            LatLng restaurantLatLng = new LatLng(
-                    restaurant.getLocation().getLat(),
-                    restaurant.getLocation().getLng());
-
-            int distanceBetweenUserRestaurant =
-                    (int) SphericalUtil.computeDistanceBetween(userLatLng, restaurantLatLng);
-
-            if (distanceBetweenUserRestaurant < 750){
-                restaurantsToShow.add(restaurant);
-            }
-        }
-        data.setValue(restaurantsToShow);
+        });
     }
 }

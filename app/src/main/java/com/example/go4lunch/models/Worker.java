@@ -1,13 +1,12 @@
 package com.example.go4lunch.models;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 public class Worker{
 
     String id;
-    String restaurantId;
+    Restaurant restaurant;
     String name;
     String mail;
     String picture;
@@ -17,13 +16,13 @@ public class Worker{
     }
 
     public Worker(String id,
-                  String restaurantId,
+                  Restaurant restaurant,
                   String name,
                   String mail,
                   String picture,
                   List<Restaurant> favoriteRestaurant) {
         this.id = id;
-        this.restaurantId = restaurantId;
+        this.restaurant = restaurant;
         this.name = name;
         this.mail = mail;
         this.picture = picture;
@@ -38,8 +37,12 @@ public class Worker{
         this.id = id;
     }
 
-    public String getRestaurantId() {
-        return restaurantId;
+    public Restaurant getRestaurant() {
+        return restaurant;
+    }
+
+    public void setRestaurant(Restaurant restaurant) {
+        this.restaurant = restaurant;
     }
 
     public String getName() {

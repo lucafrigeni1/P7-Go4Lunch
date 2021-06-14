@@ -5,9 +5,6 @@ import android.content.Context;
 import com.example.go4lunch.viewmodel.RestaurantDataRepository;
 import com.example.go4lunch.viewmodel.WorkerDataRepository;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-
 public class Injections {
 
     public static RestaurantDataRepository provideRestaurantDataRepository(Context context){

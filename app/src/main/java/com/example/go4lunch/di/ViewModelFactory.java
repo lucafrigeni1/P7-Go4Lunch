@@ -5,8 +5,6 @@ import com.example.go4lunch.viewmodel.RestaurantViewModel;
 import com.example.go4lunch.viewmodel.WorkerDataRepository;
 import com.example.go4lunch.viewmodel.WorkerViewModel;
 
-import java.util.concurrent.Executor;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;

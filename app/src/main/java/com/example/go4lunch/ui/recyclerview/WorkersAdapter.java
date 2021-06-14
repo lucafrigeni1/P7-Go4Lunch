@@ -12,7 +12,6 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.R;
-import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.models.Worker;
 import com.example.go4lunch.ui.activity.RestaurantDetailActivity;
 
@@ -25,11 +24,9 @@ import androidx.recyclerview.widget.RecyclerView;
 public class WorkersAdapter extends RecyclerView.Adapter<WorkersAdapter.WorkersViewHolder> {
 
     private final List<Worker> workers;
-    private final List<Restaurant> restaurants;
 
-    public WorkersAdapter(final List<Worker> workers, final List<Restaurant> restaurants) {
+    public WorkersAdapter(final List<Worker> workers) {
         this.workers = workers;
-        this.restaurants = restaurants;
     }
 
     @NonNull
@@ -49,7 +46,7 @@ public class WorkersAdapter extends RecyclerView.Adapter<WorkersAdapter.WorkersV
         return workers.size();
     }
 
-    public class WorkersViewHolder extends RecyclerView.ViewHolder {
+    public static class WorkersViewHolder extends RecyclerView.ViewHolder {
 
         private final ConstraintLayout item;
         private final ImageView picture;
@@ -79,14 +76,9 @@ public class WorkersAdapter extends RecyclerView.Adapter<WorkersAdapter.WorkersV
         }
 
         private void setWorkerChoice(Worker worker) {
-            if (worker.getRestaurantId() != null && !worker.getRestaurantId().isEmpty()) {
-                for (Restaurant restaurant : restaurants) {
-                    if (worker.getRestaurantId().equals(restaurant.getId())) {
-                        choice.setText(itemView.getContext().getString(R.string.decision,
-                                worker.getName(),
-                                restaurant.getName()));
-                    }
-                }
+            if (!worker.getRestaurant().getId().isEmpty()) {
+                choice.setText(itemView.getContext().getString(
+                        R.string.decision, worker.getName(), worker.getRestaurant().getName()));
             } else {
                 choice.setText(itemView.getContext().getString(R.string.undecided, worker.getName()));
                 choice.setTextColor(itemView.getContext().getResources().getColor(R.color.quantum_grey));
@@ -95,10 +87,10 @@ public class WorkersAdapter extends RecyclerView.Adapter<WorkersAdapter.WorkersV
         }
 
         private void startRestaurantDetailActivity(Worker worker) {
-            if (worker.getRestaurantId() != null && !worker.getRestaurantId().isEmpty())
+            if (!worker.getRestaurant().getId().isEmpty())
                 item.setOnClickListener(v -> {
                     Intent intent = new Intent(v.getContext(), RestaurantDetailActivity.class);
-                    intent.putExtra(RestaurantDetailActivity.EXTRA_RESTAURANT, worker.getRestaurantId());
+                    intent.putExtra(RestaurantDetailActivity.EXTRA_RESTAURANT, worker.getRestaurant().getId());
                     v.getContext().startActivity(intent);
                 });
         }

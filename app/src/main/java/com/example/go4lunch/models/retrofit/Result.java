@@ -22,8 +22,6 @@ public class Result {
     private OpeningHours openingHours;
     private Integer priceLevel;
 
-
-
     public String getBusinessStatus() {
         return businessStatus;
     }

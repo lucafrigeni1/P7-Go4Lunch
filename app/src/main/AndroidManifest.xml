@@ -26,6 +26,7 @@
         </activity>
         <activity
             android:name=".ui.activity.MainActivity"
+            android:configChanges="orientation|screenSize">
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
@@ -36,12 +37,6 @@
         </activity>
         <activity android:name=".ui.activity.RestaurantDetailActivity"/>
         <activity android:name=".ui.activity.SettingsActivity"/>
-
-        <receiver android:name=".notifications.Notifications" >
-        <intent-filter>
-            <action android:name="com.google.firebase.MESSAGING_EVENT"/>
-        </intent-filter>
-        </receiver>
     </application>
 
 </manifest>

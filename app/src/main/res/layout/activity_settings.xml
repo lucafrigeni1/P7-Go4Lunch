@@ -35,7 +35,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="50dp"
-        android:text="@string/notification_title"
+        android:text="a"
         android:textSize="25sp"/>
 
     <com.google.android.material.switchmaterial.SwitchMaterial
@@ -54,7 +54,7 @@
         app:layout_constraintBottom_toBottomOf="@id/notification_switch"
         app:layout_constraintEnd_toStartOf="@id/notification_switch"
         android:layout_marginEnd="10dp"
-        android:text="@string/notification_1"
+        android:text="b"
         android:textSize="20sp"/>
 
     <TextView
@@ -64,7 +64,7 @@
         app:layout_constraintBottom_toBottomOf="@id/notification_switch"
         app:layout_constraintStart_toEndOf="@id/notification_switch"
         android:layout_marginStart="10dp"
-        android:text="@string/notification_2"
+        android:text="c"
         android:textSize="20sp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -19,6 +19,7 @@ import com.example.go4lunch.R;
 import com.example.go4lunch.di.Injections;
 import com.example.go4lunch.di.ViewModelFactory;
 import com.example.go4lunch.models.Restaurant;
+import com.example.go4lunch.ui.activity.MainActivity;
 import com.example.go4lunch.ui.activity.RestaurantDetailActivity;
 import com.example.go4lunch.viewmodel.RestaurantViewModel;
 import com.example.go4lunch.viewmodel.WorkerViewModel;
@@ -49,6 +50,8 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
+import static com.example.go4lunch.viewmodel.WorkerDataRepository.latLng;
+
 public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     private RestaurantViewModel restaurantViewModel;
@@ -59,7 +62,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     FusedLocationProviderClient fusedLocationProviderClient;
     Location location;
     double lat, lng;
-    public static LatLng latLng;
+
 
     private static final int DEFAULT_ZOOM = 15;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
@@ -75,7 +78,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         floatingActionButton = view.findViewById(R.id.location_button);
 
         setViewModel();
-
         setFloatingActionButton();
 
         return view;
@@ -143,8 +145,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                         location = task.getResult();
                         if (location != null) {
                             getLocation();
-                            getPlaces();
-                            getRestaurants();
+                            //getPlaces();
+                            getRestaurant();
                         }
                     }
                 });
@@ -165,11 +167,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         restaurantViewModel.getPlaces(lng, lat);
     }
 
-    private void getRestaurants(){
-        restaurantViewModel.restaurantsToShow().observe(this, this::setMarkers);
+    private void  getRestaurant(){
+        restaurantViewModel.getRestaurantsList().observe(this, this::setMarkers);
     }
 
-    private void setMarkers(List<Restaurant> restaurantList){
+    public void setMarkers(List<Restaurant> restaurantList){
+        map.clear();
         for (int i = 0; i < restaurantList.size(); i++){
             com.example.go4lunch.models.retrofit.Location location =
                     restaurantList.get(i).getLocation();

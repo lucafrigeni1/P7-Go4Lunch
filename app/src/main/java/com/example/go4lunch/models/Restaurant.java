@@ -51,6 +51,10 @@ public class Restaurant{
         return id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public List<Worker> getWorkerList() {
         return workerList;
     }

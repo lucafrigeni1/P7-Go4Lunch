@@ -2,8 +2,6 @@ package com.example.go4lunch.ui.recyclerview;
 
 import android.content.Intent;
 import android.graphics.Typeface;
-import android.os.Build;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,30 +14,19 @@ import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.R;
 import com.example.go4lunch.models.retrofit.Period;
 import com.example.go4lunch.ui.activity.RestaurantDetailActivity;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.maps.android.SphericalUtil;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
-
-import static com.example.go4lunch.ui.fragments.MapsFragment.latLng;
 
 public class RestaurantsAdapter extends RecyclerView.Adapter<RestaurantsAdapter.RestaurantsViewHolder> {
 
@@ -56,7 +43,6 @@ public class RestaurantsAdapter extends RecyclerView.Adapter<RestaurantsAdapter.
         return new RestaurantsViewHolder(view);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onBindViewHolder(@NonNull RestaurantsViewHolder holder, int position) {
         holder.bind(restaurants.get(position));
@@ -97,7 +83,6 @@ public class RestaurantsAdapter extends RecyclerView.Adapter<RestaurantsAdapter.
             rating = itemView.findViewById(R.id.star);
         }
 
-        @RequiresApi(api = Build.VERSION_CODES.O)
         public void bind(Restaurant restaurant) {
             setMainInformation(restaurant);
             setOpening(restaurant);
@@ -117,12 +102,9 @@ public class RestaurantsAdapter extends RecyclerView.Adapter<RestaurantsAdapter.
                     .into(picture);
         }
 
-
-        @RequiresApi(api = Build.VERSION_CODES.O)
         private void setOpening(Restaurant restaurant) {
             getCurrentTime();
             getOpenAndCloseHours(restaurant);
-            Log.e( "setOpening: ", restaurant.getName() + " / " + open);
 
             if (open == 0 && close == -1) {
                 opening.setText(R.string.always_open);
@@ -146,15 +128,14 @@ public class RestaurantsAdapter extends RecyclerView.Adapter<RestaurantsAdapter.
                     meridiem = "am";
                 }
 
-                LocalTime localTime = LocalTime.of(hour, minute);
-                DateTimeFormatter dtf = new DateTimeFormatterBuilder().appendPattern("h").toFormatter();
+                int displayHour = setDisplayHour(hour);
 
                 if (minute == 0){
                     opening.setText(itemView.getContext().getString(R.string.open_soon,
-                            localTime.format(dtf) + meridiem));
+                            displayHour + meridiem));
                 } else {
                     opening.setText(itemView.getContext().getString(R.string.open_soon,
-                            localTime.format(dtf) + "." + minute + meridiem));
+                            displayHour + "." + minute + meridiem));
                 }
                 opening.setTypeface(null, Typeface.ITALIC);
             } else {
@@ -168,23 +149,46 @@ public class RestaurantsAdapter extends RecyclerView.Adapter<RestaurantsAdapter.
                     meridiem = "am";
                 }
 
-                LocalTime localTime = LocalTime.of(hour, minute);
-                DateTimeFormatter dtf = new DateTimeFormatterBuilder().appendPattern("h").toFormatter();
+                int displayHour = setDisplayHour(hour);
 
                 if (minute == 0){
                     opening.setText(itemView.getContext().getString(R.string.already_open,
-                            localTime.format(dtf) + meridiem));
+                            displayHour + meridiem));
                 } else {
                     opening.setText(itemView.getContext().getString(R.string.already_open,
-                            localTime.format(dtf) + "." + minute + meridiem));
+                            displayHour + "." + minute + meridiem));
                 }
                 opening.setTypeface(null, Typeface.ITALIC);
             }
+        }
 
-            Log.e("setOpening: ", String.valueOf(openList));
-            Log.e("setOpening2: ", String.valueOf(closeList));
-            Log.e("open: ", String.valueOf(open));
-            Log.e("close: ", String.valueOf(close));
+        private int setDisplayHour(int hour){
+            if (hour == 13){
+                hour = 1;
+            } else if (hour == 14){
+                hour = 2;
+            } else if (hour == 15){
+                hour = 3;
+            } else if (hour == 16){
+                hour = 4;
+            } else if (hour == 17){
+                hour = 5;
+            } else if (hour == 18){
+                hour = 6;
+            } else if (hour == 19){
+                hour = 7;
+            } else if (hour == 20){
+                hour = 8;
+            } else if (hour == 21){
+                hour = 9;
+            } else if (hour == 22){
+                hour = 10;
+            } else if (hour == 23){
+                hour = 11;
+            } else if (hour == 24){
+                hour = 12;
+            }
+            return hour;
         }
 
         private void getCurrentTime() {

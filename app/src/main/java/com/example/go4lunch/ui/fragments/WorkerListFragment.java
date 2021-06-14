@@ -11,11 +11,8 @@ import com.example.go4lunch.di.ViewModelFactory;
 import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.models.Worker;
 import com.example.go4lunch.ui.recyclerview.WorkersAdapter;
-import com.example.go4lunch.viewmodel.RestaurantViewModel;
 import com.example.go4lunch.viewmodel.WorkerViewModel;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,9 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class WorkerListFragment extends Fragment {
 
-    List<Restaurant> restaurantsList = new ArrayList<>();
     private WorkerViewModel workerviewModel;
-    private RestaurantViewModel restaurantViewModel;
     private RecyclerView recyclerView;
 
     @Nullable
@@ -52,21 +47,24 @@ public class WorkerListFragment extends Fragment {
     }
 
     private void setRecyclerView(List<Worker> workers) {
+        for (Worker worker : workers){
+            if (worker.getRestaurant() == null){
+                Restaurant restaurant = new Restaurant("", null, null, null, null, null, null, null, 0, null, 0);
+                worker.setRestaurant(restaurant);
+            }
+        }
+        Collections.sort(workers,(o1, o2) -> o2.getRestaurant().getId().compareTo(o1.getRestaurant().getId()));
         getRestaurants(workers);
     }
 
     private void getRestaurants(List<Worker> workers) {
-        restaurantViewModel.getRestaurantsList().observe(this, restaurants -> {
-            restaurantsList = restaurants;
-            WorkersAdapter adapter = new WorkersAdapter(workers, restaurantsList);
+            WorkersAdapter adapter = new WorkersAdapter(workers);
             recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(), LinearLayoutManager.VERTICAL, false));
             recyclerView.setAdapter(adapter);
-        });
     }
 
     private void setViewModel() {
         ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this.getContext());
         this.workerviewModel = ViewModelProviders.of(this, viewModelFactory).get(WorkerViewModel.class);
-        this.restaurantViewModel = ViewModelProviders.of(this, viewModelFactory).get(RestaurantViewModel.class);
     }
 }

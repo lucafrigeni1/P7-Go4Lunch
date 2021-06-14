@@ -16,16 +16,14 @@
     <string name="drawer_text_1">YOUR LUNCH</string>
     <string name="drawer_text_2">SETTINGS</string>
     <string name="drawer_text_3">LOGOUT</string>
+    <string name="search_bar">search a restaurant</string>
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
+    <string name="choice">You didn\'t make a choice</string>
 
-    //Activity settings
-    <string name="notification_title">Notification :</string>
-    <string name="language_title">Language :</string>
-    <string name="language_1">English</string>
-    <string name="language_2">Français</string>
-    <string name="notification_1">On</string>
-    <string name="notification_2">Off</string>
+    //Notification
+    <string name="coworkers">coworkers : </string>
+    <string name="nobody">nobody is coming</string>
 
     //Map Fragment
 

@@ -89,6 +89,8 @@ public class RestaurantDetailActivity extends AppCompatActivity {
     private void getRestaurant() {
         String id = getIntent().getStringExtra(EXTRA_RESTAURANT);
         restaurantViewModel.getRestaurant(id).observe(this, this::setView);
+        Gson gson = new Gson();
+        Log.e("getCurrentUser: ", gson.toJson(currentUser));
     }
 
     private void setView(Restaurant restaurant) {
@@ -109,8 +111,6 @@ public class RestaurantDetailActivity extends AppCompatActivity {
         name.setText(restaurant.getName());
         location.setText(restaurant.getAddress());
 
-        setIsChosen(restaurant);
-        setIsFavorite(restaurant);
         setChoiceBtn(restaurant);
         setCallBtn(restaurant);
         setLikeBtn(restaurant);
@@ -119,29 +119,22 @@ public class RestaurantDetailActivity extends AppCompatActivity {
         getWorkers(restaurant);
     }
 
-    private void setIsFavorite(Restaurant restaurant){
-        isFavorite = currentUser.getFavoriteRestaurant().contains(restaurant);
-    }
-
-    private void setIsChosen(Restaurant restaurant){
-        if (currentUser.getRestaurantId() != null) {
-            isChosen = currentUser.getRestaurantId().equals(restaurant.getId());
-        }else {
-            isChosen = false;
-        }
-    }
-
     private void setChoiceBtn(Restaurant restaurant) {
+        if (currentUser.getRestaurant() != null) {
+            isChosen = currentUser.getRestaurant().equals(restaurant);
+        } else
+            isChosen = false;
+
         if (isChosen){
             choiceBtn.setImageResource(R.drawable.ic_baseline_check_24);
         } else
             choiceBtn.setImageResource(R.drawable.ic_baseline_uncheck_24);
 
         choiceBtn.setOnClickListener(v -> {
-            if (isChosen){
+            if (isChosen) {
                 workerViewModel.updateWorkerChoice(null).observe(this, aBoolean -> getCurrentUser());
             } else {
-                workerViewModel.updateWorkerChoice(restaurant.getId()).observe(this, aBoolean -> getCurrentUser());
+                workerViewModel.updateWorkerChoice(restaurant).observe(this, aBoolean -> getCurrentUser());
             }
         });
     }
@@ -158,6 +151,8 @@ public class RestaurantDetailActivity extends AppCompatActivity {
     }
 
     private void setLikeBtn(Restaurant restaurant) {
+        isFavorite = currentUser.getFavoriteRestaurant().contains(restaurant);
+
         if (isFavorite){
             likeBtn.setImageResource(R.drawable.ic_baseline_orange_star_24);
         } else
@@ -165,8 +160,7 @@ public class RestaurantDetailActivity extends AppCompatActivity {
 
         likeBtn.setOnClickListener(v -> {
             List<Restaurant> favoriteRestaurants = new ArrayList<>(currentUser.getFavoriteRestaurant());
-            Gson gson = new Gson();
-            Log.e("setLikeBtn: ", gson.toJson(favoriteRestaurants));
+
             if (isFavorite) {
                 favoriteRestaurants.remove(restaurant);
             } else {
@@ -196,8 +190,8 @@ public class RestaurantDetailActivity extends AppCompatActivity {
     private void setWorkerList(List<Worker> workers, Restaurant restaurant) {
         List<Worker> participants = new ArrayList<>();
         for (Worker worker : workers) {
-            if (worker.getRestaurantId() != null) {
-                if (worker.getRestaurantId().equals(restaurant.getId())) {
+            if (worker.getRestaurant() != null) {
+                if (worker.getRestaurant().getId().equals(restaurant.getId())) {
                     participants.add(worker);
                 }
             }

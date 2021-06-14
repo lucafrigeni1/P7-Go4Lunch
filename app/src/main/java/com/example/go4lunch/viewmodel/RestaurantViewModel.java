@@ -15,19 +15,19 @@ public class RestaurantViewModel extends ViewModel {
         this.restaurantDataSource = restaurantDataRepository;
     }
 
-    public LiveData<List<Restaurant>> getRestaurantsList(){
-        return restaurantDataSource.getAllRestaurants();
-    }
-
-    public LiveData<List<Restaurant>> restaurantsToShow(){
-        return restaurantDataSource.getRestaurantToShow();
+    public void getPlaces(Double longitude, Double latitude){
+        restaurantDataSource.getPlaces(longitude,latitude);
     }
 
     public LiveData<Restaurant> getRestaurant(String id){
         return restaurantDataSource.getRestaurant(id);
     }
 
-    public void getPlaces(Double longitude, Double latitude){
-        restaurantDataSource.getPlaces(longitude,latitude);
+    public LiveData<List<Restaurant>> getRestaurantsList(){
+        return restaurantDataSource.getRestaurantList();
+    }
+
+    public LiveData<List<Restaurant>> getFilteredRestaurantsList(String input){
+        return restaurantDataSource.getFilteredRestaurantList(input);
     }
 }
