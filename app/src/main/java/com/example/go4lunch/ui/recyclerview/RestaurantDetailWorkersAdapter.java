@@ -1,6 +1,5 @@
 package com.example.go4lunch.ui.recyclerview;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,9 +9,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.R;
-import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.models.Worker;
-import com.example.go4lunch.viewmodel.RestaurantViewModel;
 
 import java.util.List;
 
@@ -23,7 +20,7 @@ public class RestaurantDetailWorkersAdapter extends RecyclerView.Adapter<Restaur
 
     private final List<Worker> workers;
 
-    public RestaurantDetailWorkersAdapter(final List<Worker> workers){
+    public RestaurantDetailWorkersAdapter(final List<Worker> workers) {
         this.workers = workers;
     }
 
@@ -59,7 +56,7 @@ public class RestaurantDetailWorkersAdapter extends RecyclerView.Adapter<Restaur
         }
 
         public void bind(Worker worker) {
-            if (worker.getPicture() != null){
+            if (worker.getPicture() != null) {
                 Glide.with(picture)
                         .load(worker.getPicture())
                         .apply(RequestOptions.circleCropTransform())

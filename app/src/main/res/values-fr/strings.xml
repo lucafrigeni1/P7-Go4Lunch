@@ -5,6 +5,12 @@
     <string name="error_no_internet">erreur, vérifier votre connexion</string>
     <string name="error_unknown_error">erreur inconnue</string>
 
+    //Notification dialog
+    <string name="title">Notifications</string>
+    <string name="message">Autoriser l\'envoi de notifications</string>
+    <string name="yes">OUI</string>
+    <string name="no">NON</string>
+
     //Navigation menu
     <string name="toolbar_text_1">J\'ai faim!</string>
     <string name="toolbar_text_2">Collègues disponibles</string>
@@ -17,19 +23,12 @@
     <string name="search_bar">rechercher un restaurant</string>
     <string name="choice">Vous n\'avez pas fait de choix</string>
 
-    //Activity settings
-    <string name="notification_title">Notification :</string>
-    <string name="language_title">Langage :</string>
-    <string name="language_1">English</string>
-    <string name="language_2">Français</string>
-    <string name="notification_1">On</string>
-    <string name="notification_2">Off</string>
-
     //Notification
-    <string name="coworkers">collègues : </string>
+    <string name="coworkers">Collègues : %1$s</string>
     <string name="nobody">personne ne vous rejoins</string>
 
     //Map Fragment
+    <string name="error_location">geolocalisation impossible</string>
 
     //Worker Fragment
     <string name="undecided"><i>%1$s n\'a pas encore décidé</i> </string>
@@ -37,6 +36,7 @@
     <string name="join">%1$s y mange !</string>
 
     //Restaurant Fragment
+    <string name="no_restaurant_found">Aucun restaurant trouvé \n Vérifiez que la géolocalisation/Connection soit activée</string>
     <string name="always_open">Ouvert 24/24</string>
     <string name="open_soon">Ouvre à %1$s</string>
     <string name="already_open">Ouvert jusqu\'à %1$s</string>

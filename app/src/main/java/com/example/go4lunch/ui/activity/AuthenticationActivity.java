@@ -7,26 +7,22 @@ import android.widget.Toast;
 import com.example.go4lunch.R;
 import com.example.go4lunch.di.Injections;
 import com.example.go4lunch.di.ViewModelFactory;
-import com.example.go4lunch.models.Restaurant;
-import com.example.go4lunch.models.Worker;
 import com.example.go4lunch.viewmodel.WorkerViewModel;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
-import com.google.firebase.auth.FirebaseUser;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
 
 public class AuthenticationActivity extends AppCompatActivity {
 
-    WorkerViewModel workerViewModel;
-
     private static final int RC_SIGN_IN = 123;
+    WorkerViewModel workerViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,15 +47,12 @@ public class AuthenticationActivity extends AppCompatActivity {
                 new AuthUI.IdpConfig.TwitterBuilder().build()
         );
 
-        startActivityForResult(
-                AuthUI.getInstance()
-                        .createSignInIntentBuilder()
-                        .setTheme(R.style.LoginTheme)
-                        .setAvailableProviders(providers)
-                        .setIsSmartLockEnabled(false, true)
-                        .setLogo(R.drawable.logo)
-                        .build(),
-                RC_SIGN_IN);
+        startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder()
+                .setTheme(R.style.LoginTheme)
+                .setAvailableProviders(providers)
+                .setIsSmartLockEnabled(false, true)
+                .setLogo(R.drawable.logo)
+                .build(), RC_SIGN_IN);
     }
 
     @Override
@@ -73,12 +66,11 @@ public class AuthenticationActivity extends AppCompatActivity {
 
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {
-                createWorkerInFirestore();
-                startMainActivity();
+                workerViewModel.createWorker().observe(this, isCreated -> startMainActivity());
             } else {
                 if (response == null) {
                     Toast.makeText(this, R.string.error_authentication_canceled, Toast.LENGTH_LONG).show();
-                } else if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
+                } else if (Objects.requireNonNull(response.getError()).getErrorCode() == ErrorCodes.NO_NETWORK) {
                     Toast.makeText(this, R.string.error_no_internet, Toast.LENGTH_LONG).show();
                 } else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
                     Toast.makeText(this, R.string.error_unknown_error, Toast.LENGTH_LONG).show();
@@ -93,23 +85,7 @@ public class AuthenticationActivity extends AppCompatActivity {
         finish();
     }
 
-    public void createWorkerInFirestore() {
-        FirebaseUser firebaseUser = workerViewModel.getFirebaseUser();
-        if (firebaseUser != null){
-            List<Restaurant> favoriteRestaurant = new ArrayList<>();
-
-            Worker worker = new Worker(
-                    firebaseUser.getUid(),
-                    null,
-                    firebaseUser.getDisplayName(),
-                    firebaseUser.getEmail(),
-                    null, favoriteRestaurant);
-
-            workerViewModel.createWorker(worker);
-        }
-    }
-
-    private void setWorkerViewModel(){
+    private void setWorkerViewModel() {
         ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this);
         this.workerViewModel = ViewModelProviders.of(this, viewModelFactory).get(WorkerViewModel.class);
     }

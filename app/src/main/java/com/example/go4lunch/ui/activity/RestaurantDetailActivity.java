@@ -25,9 +25,7 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.GravityCompat;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -182,9 +180,7 @@ public class RestaurantDetailActivity extends AppCompatActivity {
     }
 
     private void getWorkers(Restaurant restaurant) {
-        workerViewModel.getWorkersList().observe(this, workers -> {
-            setWorkerList(workers, restaurant);
-        });
+        workerViewModel.getWorkersList().observe(this, workers -> setWorkerList(workers, restaurant));
     }
 
     private void setWorkerList(List<Worker> workers, Restaurant restaurant) {

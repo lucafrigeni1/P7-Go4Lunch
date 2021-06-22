@@ -19,10 +19,8 @@ import com.example.go4lunch.R;
 import com.example.go4lunch.di.Injections;
 import com.example.go4lunch.di.ViewModelFactory;
 import com.example.go4lunch.models.Restaurant;
-import com.example.go4lunch.ui.activity.MainActivity;
 import com.example.go4lunch.ui.activity.RestaurantDetailActivity;
 import com.example.go4lunch.viewmodel.RestaurantViewModel;
-import com.example.go4lunch.viewmodel.WorkerViewModel;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -34,10 +32,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
-import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.gson.Gson;
 
 import java.util.List;
 import java.util.Objects;
@@ -55,14 +50,12 @@ import static com.example.go4lunch.viewmodel.WorkerDataRepository.latLng;
 public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     private RestaurantViewModel restaurantViewModel;
-    private WorkerViewModel workerViewModel;
 
     private GoogleMap map;
 
     FusedLocationProviderClient fusedLocationProviderClient;
     Location location;
     double lat, lng;
-
 
     private static final int DEFAULT_ZOOM = 15;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
@@ -74,7 +67,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_maps, container, false);
-
         floatingActionButton = view.findViewById(R.id.location_button);
 
         setViewModel();
@@ -83,10 +75,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         return view;
     }
 
-    private void setViewModel(){
+    private void setViewModel() {
         ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this.getContext());
         this.restaurantViewModel = ViewModelProviders.of(this, viewModelFactory).get(RestaurantViewModel.class);
-        this.workerViewModel = ViewModelProviders.of(this, viewModelFactory).get(WorkerViewModel.class);
     }
 
     @Override
@@ -96,7 +87,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void init() {
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this.getActivity());
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(Objects.requireNonNull(this.getActivity()));
 
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
@@ -108,13 +99,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
         setMapStyle();
         getDeviceLocation();
     }
 
-    private void setMapStyle(){
+    private void setMapStyle() {
         map.setMapStyle(MapStyleOptions.loadRawResourceStyle(Objects.requireNonNull(this.getContext()), R.raw.style_maps));
         map.getUiSettings().setMapToolbarEnabled(false);
         map.getUiSettings().setMyLocationButtonEnabled(false);
@@ -147,7 +138,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                             getLocation();
                             //getPlaces();
                             getRestaurant();
-                        }
+                        } else
+                            Toast.makeText(this.getContext(), getString(R.string.error_location), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -156,33 +148,32 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    private void getLocation(){
+    private void getLocation() {
         lat = location.getLatitude();
         lng = location.getLongitude();
         latLng = new LatLng(lat, lng);
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
     }
 
-    private void getPlaces(){
+    private void getPlaces() {
         restaurantViewModel.getPlaces(lng, lat);
     }
 
-    private void  getRestaurant(){
+    private void getRestaurant() {
         restaurantViewModel.getRestaurantsList().observe(this, this::setMarkers);
     }
 
-    public void setMarkers(List<Restaurant> restaurantList){
+    public void setMarkers(List<Restaurant> restaurantList) {
         map.clear();
-        for (int i = 0; i < restaurantList.size(); i++){
-            com.example.go4lunch.models.retrofit.Location location =
-                    restaurantList.get(i).getLocation();
+
+        for (int i = 0; i < restaurantList.size(); i++) {
+            com.example.go4lunch.models.retrofit.Location location = restaurantList.get(i).getLocation();
             LatLng latLng = new LatLng(location.getLat(), location.getLng());
 
             Bitmap bm;
-
-            if (restaurantList.get(i).getWorkerList().size() == 0){
+            if (restaurantList.get(i).getWorkerList().size() == 0) {
                 bm = getBitmapFromVectorDrawable(getContext(), R.drawable.ic_marker_red);
-            }else {
+            } else {
                 bm = getBitmapFromVectorDrawable(getContext(), R.drawable.ic_marker_green);
             }
 
@@ -194,23 +185,23 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         }
 
         map.setOnInfoWindowClickListener(marker -> {
-            for (Restaurant restaurant : restaurantList){
-                if (restaurant.getName().equals(marker.getTitle())){
+            for (Restaurant restaurant : restaurantList) {
+                if (restaurant.getName().equals(marker.getTitle())) {
                     Intent intent = new Intent(this.getContext(), RestaurantDetailActivity.class);
                     intent.putExtra(RestaurantDetailActivity.EXTRA_RESTAURANT, restaurant.getId());
-                    this.getContext().startActivity(intent);
+                    Objects.requireNonNull(this.getContext()).startActivity(intent);
                 }
             }
         });
     }
 
-    public static Bitmap getBitmapFromVectorDrawable(Context context, int drawableId) {
+    private static Bitmap getBitmapFromVectorDrawable(Context context, int drawableId) {
         Drawable drawable = ContextCompat.getDrawable(context, drawableId);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            drawable = (DrawableCompat.wrap(drawable)).mutate();
+            drawable = (DrawableCompat.wrap(Objects.requireNonNull(drawable))).mutate();
         }
 
-        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
+        Bitmap bitmap = Bitmap.createBitmap(Objects.requireNonNull(drawable).getIntrinsicWidth(),
                 drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());

@@ -2,9 +2,11 @@ package com.example.go4lunch.ui.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
@@ -29,9 +31,10 @@ import com.example.go4lunch.viewmodel.WorkerViewModel;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.gson.Gson;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -44,8 +47,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 import static com.example.go4lunch.R.color.white;
-import static com.example.go4lunch.viewmodel.WorkerDataRepository.currentUserId;
 import static com.example.go4lunch.viewmodel.WorkerDataRepository.latLng;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -63,12 +66,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     ImageView headerPicture;
     TextView headerName;
     TextView headerMail;
+    ImageView logo;
     NavigationView navigationView;
     BottomNavigationView bottomNavigationView;
 
     ConstraintLayout searchBar;
     ImageButton searchButton;
     EditText searchText;
+
+    boolean areNotificationsAllowed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,9 +87,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setHeader();
         setSearchButton();
 
-        currentUserId = FirebaseAuth.getInstance().getUid();
-
-        sendNotifications();
+        if (areNotificationsAllowed){
+            sendNotifications();
+        }
     }
 
     public void sendNotifications() {
@@ -95,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         frameLayout = findViewById(R.id.fragment_container);
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.drawer_menu);
+        logo = findViewById(R.id.logo);
         toolbar = findViewById(R.id.top_toolbar);
         searchButton = findViewById(R.id.top_bar_search_btn);
         searchBar = findViewById(R.id.search_bar);
@@ -137,16 +144,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (latLng != null) {
                         setSearchResult(s.toString());
                     }
-                }
+                } else
+                    setSearchResult(null);
             }
         });
     }
 
     private void setSearchResult(String search) {
         if (mapsFragment.isVisible()) {
-            restaurantViewModel.getFilteredRestaurantsList(search).observe(MainActivity.this, mapsFragment::setMarkers);
+            if (search == null){
+                restaurantViewModel.getRestaurantsList().observe(MainActivity.this, mapsFragment::setMarkers);
+            } else
+                restaurantViewModel.getFilteredRestaurantsList(search).observe(MainActivity.this, mapsFragment::setMarkers);
         } else if (restaurantListFragment.isVisible()) {
-            restaurantViewModel.getFilteredRestaurantsList(search).observe(MainActivity.this, restaurantListFragment::setRestaurantList);
+            if (search == null){
+                restaurantViewModel.getRestaurantsList().observe(MainActivity.this, restaurantListFragment::setRestaurantList);
+            } else
+                restaurantViewModel.getFilteredRestaurantsList(search).observe(MainActivity.this, restaurantListFragment::setRestaurantList);
         }
     }
 
@@ -160,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getCurrentUserChoice();
                 break;
             case R.id.settings:
-                startSettingsActivity();
+                openNotificationDialog();
                 break;
             case R.id.logout:
                 signOutUserFromFirebase();
@@ -175,6 +189,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void startRestaurantDetailActivity(Worker worker) {
+        Gson gson = new Gson();
+        Log.e("startRestaurantDe ", gson.toJson(worker));
+        //if worker = null connection toast
         if (worker.getRestaurant() != null) {
             Intent intent = new Intent(this.getApplicationContext(), RestaurantDetailActivity.class);
             intent.putExtra(RestaurantDetailActivity.EXTRA_RESTAURANT, worker.getRestaurant().getId());
@@ -184,16 +201,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void startSettingsActivity() {
-        finish();
-        Intent intent = new Intent(this, SettingsActivity.class);
-        startActivity(intent);
+    private void openNotificationDialog() {
+       MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+       builder.setTitle(R.string.title).setMessage(R.string.message)
+               .setNegativeButton(R.string.no, (dialog, which) -> {
+                   if (areNotificationsAllowed){
+                       areNotificationsAllowed = false;
+                   }
+               })
+               .setPositiveButton(R.string.yes, (dialog, which) -> {
+                   if (!areNotificationsAllowed){
+                       areNotificationsAllowed = true;
+                   }
+               })
+               .show();
     }
 
     private void signOutUserFromFirebase() {
         AuthUI.getInstance()
                 .signOut(this)
                 .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted());
+    }
+
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if( newConfig.orientation == ORIENTATION_LANDSCAPE ) {
+            logo.setVisibility(View.GONE);
+        } else
+            logo.setVisibility(View.VISIBLE);
     }
 
     @Override

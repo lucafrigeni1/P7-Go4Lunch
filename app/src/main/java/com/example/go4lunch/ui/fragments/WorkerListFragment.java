@@ -39,6 +39,11 @@ public class WorkerListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         recyclerView = view.findViewById(R.id.worker_list);
         setViewModel();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         getWorkers();
     }
 

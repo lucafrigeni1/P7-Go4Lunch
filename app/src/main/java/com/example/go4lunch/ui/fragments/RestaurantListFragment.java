@@ -4,13 +4,17 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.go4lunch.R;
 import com.example.go4lunch.di.Injections;
 import com.example.go4lunch.di.ViewModelFactory;
 import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.ui.recyclerview.RestaurantsAdapter;
+import com.example.go4lunch.viewmodel.RestaurantDataRepository;
 import com.example.go4lunch.viewmodel.RestaurantViewModel;
+import com.example.go4lunch.viewmodel.WorkerDataRepository;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,10 +26,13 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import static com.example.go4lunch.viewmodel.WorkerDataRepository.latLng;
+
 public class RestaurantListFragment extends Fragment {
 
     private RestaurantViewModel viewModel;
     private RecyclerView recyclerView;
+    private TextView errorText;
 
     @Nullable
     @Override
@@ -37,7 +44,13 @@ public class RestaurantListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         recyclerView = view.findViewById(R.id.restaurant_list);
+        errorText = view.findViewById(R.id.error);
         setRestaurantViewModel();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         getRestaurants();
     }
 
@@ -46,10 +59,18 @@ public class RestaurantListFragment extends Fragment {
     }
 
     public void setRestaurantList(List<Restaurant> restaurants) {
-        Collections.sort(restaurants, new Restaurant.RestaurantComparator());
-        RestaurantsAdapter adapter = new RestaurantsAdapter(restaurants);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(), LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(adapter);
+        if (restaurants.size() == 0){
+            errorText.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            errorText.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+
+            Collections.sort(restaurants, new Restaurant.RestaurantComparator());
+            RestaurantsAdapter adapter = new RestaurantsAdapter(restaurants);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(), LinearLayoutManager.VERTICAL, false));
+            recyclerView.setAdapter(adapter);
+        }
     }
 
     private void setRestaurantViewModel() {
