@@ -46,16 +46,23 @@ public class Notifications extends androidx.work.Worker {
 
         WorkRequest workRequest;
 
-        if (currentTime > 1503){
+        int currentTimeInMinute = (currentTime /100 * 60) + (currentTime % 100);
+        int triggerTime = 1200;
+        int triggerTimeInMinute = (triggerTime /100 * 60) + (triggerTime % 100);
+
+        if (currentTime > triggerTime){
+            int minutesInADay = 1440;
             workRequest = new OneTimeWorkRequest.Builder(Notifications.class)
-                    .setInitialDelay(2160 - currentTime * 60 / 100, TimeUnit.MINUTES)
-                    .build();
+                    .setInitialDelay(triggerTimeInMinute + minutesInADay - currentTimeInMinute, TimeUnit.MINUTES).build();
         } else {
             workRequest = new OneTimeWorkRequest.Builder(Notifications.class)
-                    .setInitialDelay(720 - currentTime * 60 / 100, TimeUnit.MINUTES)
-                    .build();
+                    .setInitialDelay(triggerTimeInMinute - currentTimeInMinute, TimeUnit.MINUTES).build();
         }
         WorkManager.getInstance(context).enqueue(workRequest);
+    }
+
+    public static void cancelWorker(Context context){
+        WorkManager.getInstance(context).cancelAllWork();
     }
 
     @NonNull
@@ -78,7 +85,7 @@ public class Notifications extends androidx.work.Worker {
         restaurantsCollectionReference
                 .document(worker.getRestaurant().getId()).get().addOnCompleteListener(task -> {
                     Restaurant restaurant = task.getResult().toObject(Restaurant.class);
-                    getInformations(context, restaurant, worker);
+                    getInformations(context, Objects.requireNonNull(restaurant), worker);
                 });
     }
 
@@ -99,10 +106,10 @@ public class Notifications extends androidx.work.Worker {
             stringBuilder.append(name);
             stringBuilder.append(SEPARATOR);
         }
-        //stringBuilder.setLength(stringBuilder.length()-1);
+        stringBuilder.setLength(stringBuilder.length()-1);
         String names = stringBuilder.toString();
 
-        if (names != null && !names.isEmpty()) {
+        if (!names.isEmpty()) {
             participants = context.getString(R.string.coworkers, names);
         } else
             participants = context.getString(R.string.nobody);
@@ -125,7 +132,6 @@ public class Notifications extends androidx.work.Worker {
                         .setContentText(restaurant.getAddress())
                         .setAutoCancel(true)
                         .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                        //.setContentIntent(pendingIntent)
                         .setStyle(inboxStyle);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -134,7 +140,7 @@ public class Notifications extends androidx.work.Worker {
 
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             Objects.requireNonNull(notificationManager).createNotificationChannel(mChannel);
-            notificationManager.notify("GO4LUNCH", 007, notificationBuilder.build());
+            notificationManager.notify("GO4LUNCH", 7, notificationBuilder.build());
         }
     }
 }

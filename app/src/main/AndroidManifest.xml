@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.go4lunch">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -24,19 +25,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".ui.activity.MainActivity"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan"
             android:configChanges="orientation|screenSize">
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
-            <meta-data
-                android:name="android.app.searchable"
-                android:resource="@xml/searchable"/>
         </activity>
-        <activity android:name=".ui.activity.RestaurantDetailActivity"/>
-        <activity android:name=".ui.activity.SettingsActivity"/>
-    </application>
 
+        <activity android:name=".ui.activity.RestaurantDetailActivity"/>
+
+    </application>
 </manifest>

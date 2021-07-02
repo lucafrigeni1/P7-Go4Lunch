@@ -19,6 +19,7 @@ import com.example.go4lunch.R;
 import com.example.go4lunch.di.Injections;
 import com.example.go4lunch.di.ViewModelFactory;
 import com.example.go4lunch.models.Restaurant;
+import com.example.go4lunch.ui.activity.MainActivity;
 import com.example.go4lunch.ui.activity.RestaurantDetailActivity;
 import com.example.go4lunch.viewmodel.RestaurantViewModel;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -87,7 +88,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void init() {
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(Objects.requireNonNull(this.getActivity()));
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this.requireActivity());
 
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
@@ -106,19 +107,19 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void setMapStyle() {
-        map.setMapStyle(MapStyleOptions.loadRawResourceStyle(Objects.requireNonNull(this.getContext()), R.raw.style_maps));
+        map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this.requireContext(), R.raw.style_maps));
         map.getUiSettings().setMapToolbarEnabled(false);
         map.getUiSettings().setMyLocationButtonEnabled(false);
     }
 
     //ALLOW THE APP TO SEE THE USER LOCATION
     private void getLocationPermission() {
-        if (ContextCompat.checkSelfPermission(Objects.requireNonNull(this.getActivity()),
+        if (ContextCompat.checkSelfPermission(this.requireActivity(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             locationPermissionGranted = true;
         } else {
-            ActivityCompat.requestPermissions(this.getActivity(),
+            ActivityCompat.requestPermissions(this.requireActivity(),
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
@@ -128,21 +129,24 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private void getDeviceLocation() {
         getLocationPermission();
         try {
-            if (locationPermissionGranted) {
-                map.setMyLocationEnabled(true);
-                Task<Location> locationResult = fusedLocationProviderClient.getLastLocation();
-                locationResult.addOnCompleteListener(Objects.requireNonNull(this.getActivity()), task -> {
-                    if (task.isSuccessful()) {
-                        location = task.getResult();
-                        if (location != null) {
-                            getLocation();
-                            //getPlaces();
-                            getRestaurant();
-                        } else
-                            Toast.makeText(this.getContext(), getString(R.string.error_location), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
+            if (MainActivity.isConnected(this.requireContext())) {
+                if (locationPermissionGranted) {
+                    map.setMyLocationEnabled(true);
+                    Task<Location> locationResult = fusedLocationProviderClient.getLastLocation();
+                    locationResult.addOnCompleteListener(this.requireActivity(), task -> {
+                        if (task.isSuccessful()) {
+                            location = task.getResult();
+                            if (location != null) {
+                                getLocation();
+                                //getPlaces();
+                                getRestaurant();
+                            } else
+                                Toast.makeText(this.getContext(), getString(R.string.error_location), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            } else
+                Toast.makeText(this.getContext(), getString(R.string.error_no_internet), Toast.LENGTH_LONG).show();
         } catch (SecurityException e) {
             Log.e("Exception: %s", e.getMessage(), e);
         }
@@ -160,28 +164,30 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void getRestaurant() {
-        restaurantViewModel.getRestaurantsList().observe(this, this::setMarkers);
+        restaurantViewModel.getRestaurantsList().observe(getViewLifecycleOwner(), this::setMarkers);
     }
 
     public void setMarkers(List<Restaurant> restaurantList) {
         map.clear();
 
-        for (int i = 0; i < restaurantList.size(); i++) {
-            com.example.go4lunch.models.retrofit.Location location = restaurantList.get(i).getLocation();
-            LatLng latLng = new LatLng(location.getLat(), location.getLng());
+        if (getContext() != null) {
+            for (int i = 0; i < restaurantList.size(); i++) {
+                com.example.go4lunch.models.retrofit.Location location = restaurantList.get(i).getLocation();
+                LatLng latLng = new LatLng(location.getLat(), location.getLng());
 
-            Bitmap bm;
-            if (restaurantList.get(i).getWorkerList().size() == 0) {
-                bm = getBitmapFromVectorDrawable(getContext(), R.drawable.ic_marker_red);
-            } else {
-                bm = getBitmapFromVectorDrawable(getContext(), R.drawable.ic_marker_green);
+                Bitmap bm;
+                if (restaurantList.get(i).getWorkerList().size() == 0) {
+                    bm = getBitmapFromVectorDrawable(getContext(), R.drawable.ic_marker_red);
+                } else {
+                    bm = getBitmapFromVectorDrawable(getContext(), R.drawable.ic_marker_green);
+                }
+
+                map.addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .icon(BitmapDescriptorFactory.fromBitmap(bm))
+                        .title(restaurantList.get(i).getName())
+                );
             }
-
-            map.addMarker(new MarkerOptions()
-                    .position(latLng)
-                    .icon(BitmapDescriptorFactory.fromBitmap(bm))
-                    .title(restaurantList.get(i).getName())
-            );
         }
 
         map.setOnInfoWindowClickListener(marker -> {
@@ -189,7 +195,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 if (restaurant.getName().equals(marker.getTitle())) {
                     Intent intent = new Intent(this.getContext(), RestaurantDetailActivity.class);
                     intent.putExtra(RestaurantDetailActivity.EXTRA_RESTAURANT, restaurant.getId());
-                    Objects.requireNonNull(this.getContext()).startActivity(intent);
+                    this.requireContext().startActivity(intent);
                 }
             }
         });

@@ -41,6 +41,7 @@
 
     //Restaurant Fragment
     <string name="no_restaurant_found">No restaurant found \n Check if your localisation/Connexion is activate</string>
+    <string name="no_coworkers_found">No coworkers found \n Check if your connexion is activate</string>
     <string name="always_open">Open 24/24</string>
     <string name="open_soon">Open at %1$s</string>
     <string name="already_open">Open until %1$s</string>

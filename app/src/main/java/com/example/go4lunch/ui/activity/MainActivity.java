@@ -1,12 +1,15 @@
 package com.example.go4lunch.ui.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
@@ -34,7 +37,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.gson.Gson;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -74,26 +76,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     ImageButton searchButton;
     EditText searchText;
 
-    boolean areNotificationsAllowed;
+    Boolean areNotificationsAllowed = true;
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        sharedPreferences = getPreferences(MODE_PRIVATE);
         findViewById();
         setViewModels();
         pageSelected();
         configureToolBar();
         setHeader();
         setSearchButton();
-
-        if (areNotificationsAllowed){
-            sendNotifications();
-        }
-    }
-
-    public void sendNotifications() {
-        Notifications.launchWorker(this);
+        sendNotifications();
     }
 
     public void findViewById() {
@@ -106,6 +103,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         searchButton = findViewById(R.id.top_bar_search_btn);
         searchBar = findViewById(R.id.search_bar);
         searchText = findViewById(R.id.search_text);
+    }
+
+    public static Boolean isConnected(Context context){
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnectedOrConnecting();
+    }
+
+    public void sendNotifications() {
+        areNotificationsAllowed = sharedPreferences.getBoolean("notifications", true);
+        if (areNotificationsAllowed) {
+            Notifications.launchWorker(this);
+        }
     }
 
     //TOP BAR
@@ -131,33 +141,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         searchText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (s.length() >= 3) {
-                    if (latLng != null) {
-                        setSearchResult(s.toString());
-                    }
-                } else
-                    setSearchResult(null);
+                if (isConnected(MainActivity.this)) {
+                    if (s.length() >= 3) {
+                        if (latLng != null) {
+                            setSearchResult(s.toString());
+                        }
+                    } else
+                        setSearchResult(null);
+                }
             }
         });
     }
 
     private void setSearchResult(String search) {
         if (mapsFragment.isVisible()) {
-            if (search == null){
+            if (search == null) {
                 restaurantViewModel.getRestaurantsList().observe(MainActivity.this, mapsFragment::setMarkers);
             } else
                 restaurantViewModel.getFilteredRestaurantsList(search).observe(MainActivity.this, mapsFragment::setMarkers);
         } else if (restaurantListFragment.isVisible()) {
-            if (search == null){
+            if (search == null) {
                 restaurantViewModel.getRestaurantsList().observe(MainActivity.this, restaurantListFragment::setRestaurantList);
             } else
                 restaurantViewModel.getFilteredRestaurantsList(search).observe(MainActivity.this, restaurantListFragment::setRestaurantList);
@@ -171,7 +181,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
         switch (id) {
             case R.id.your_lunch:
-                getCurrentUserChoice();
+                if (isConnected(this)) {
+                    getCurrentUserChoice();
+                } else
+                    Toast.makeText(this, getString(R.string.error_no_internet), Toast.LENGTH_LONG).show();
                 break;
             case R.id.settings:
                 openNotificationDialog();
@@ -189,9 +202,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void startRestaurantDetailActivity(Worker worker) {
-        Gson gson = new Gson();
-        Log.e("startRestaurantDe ", gson.toJson(worker));
-        //if worker = null connection toast
         if (worker.getRestaurant() != null) {
             Intent intent = new Intent(this.getApplicationContext(), RestaurantDetailActivity.class);
             intent.putExtra(RestaurantDetailActivity.EXTRA_RESTAURANT, worker.getRestaurant().getId());
@@ -202,19 +212,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void openNotificationDialog() {
-       MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-       builder.setTitle(R.string.title).setMessage(R.string.message)
-               .setNegativeButton(R.string.no, (dialog, which) -> {
-                   if (areNotificationsAllowed){
-                       areNotificationsAllowed = false;
-                   }
-               })
-               .setPositiveButton(R.string.yes, (dialog, which) -> {
-                   if (!areNotificationsAllowed){
-                       areNotificationsAllowed = true;
-                   }
-               })
-               .show();
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        builder.setTitle(R.string.title).setMessage(R.string.message)
+                .setNegativeButton(R.string.no, (dialog, which) -> {
+                    if (areNotificationsAllowed) {
+                        Notifications.cancelWorker(this);
+                        areNotificationsAllowed = false;
+                        sharedPreferences.edit().putBoolean("notifications", areNotificationsAllowed).apply();
+                    }
+                })
+                .setPositiveButton(R.string.yes, (dialog, which) -> {
+                    if (!areNotificationsAllowed) {
+                        Notifications.launchWorker(this);
+                        areNotificationsAllowed = true;
+                        sharedPreferences.edit().putBoolean("notifications", areNotificationsAllowed).apply();
+                    }
+                }).show();
     }
 
     private void signOutUserFromFirebase() {
@@ -223,23 +236,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted());
     }
 
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        if( newConfig.orientation == ORIENTATION_LANDSCAPE ) {
-            logo.setVisibility(View.GONE);
-        } else
-            logo.setVisibility(View.VISIBLE);
+    private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted() {
+        return aVoid -> startAuthenticationActivity();
     }
 
-    @Override
-    public void onBackPressed() {
-        if (this.drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            this.drawerLayout.closeDrawer(GravityCompat.START);
-        } else if (searchBar.isShown()) {
-            searchBar.setVisibility(View.GONE);
-        } else {
-            super.onBackPressed();
-        }
+    private void startAuthenticationActivity() {
+        finish();
+        Intent intent = new Intent(this, AuthenticationActivity.class);
+        startActivity(intent);
     }
 
     private void setHeader() {
@@ -267,14 +271,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted() {
-        return aVoid -> startAuthenticationActivity();
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (newConfig.orientation == ORIENTATION_LANDSCAPE) {
+            logo.setVisibility(View.GONE);
+        } else
+            logo.setVisibility(View.VISIBLE);
     }
 
-    private void startAuthenticationActivity() {
-        finish();
-        Intent intent = new Intent(this, AuthenticationActivity.class);
-        startActivity(intent);
+    @Override
+    public void onBackPressed() {
+        if (this.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            this.drawerLayout.closeDrawer(GravityCompat.START);
+        } else if (searchBar.isShown()) {
+            searchBar.setVisibility(View.GONE);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     //BOTTOM MENU
@@ -307,6 +320,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     searchButton.setVisibility(View.GONE);
                     if (searchBar.isShown()) {
                         searchBar.setVisibility(View.GONE);
+                        searchText.getText().clear();
                     }
                     setFragment(workerListFragment);
                     break;

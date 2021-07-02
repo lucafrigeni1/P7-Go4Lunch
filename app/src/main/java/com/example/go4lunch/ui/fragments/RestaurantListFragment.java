@@ -5,16 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.go4lunch.R;
 import com.example.go4lunch.di.Injections;
 import com.example.go4lunch.di.ViewModelFactory;
 import com.example.go4lunch.models.Restaurant;
+import com.example.go4lunch.ui.activity.MainActivity;
 import com.example.go4lunch.ui.recyclerview.RestaurantsAdapter;
-import com.example.go4lunch.viewmodel.RestaurantDataRepository;
 import com.example.go4lunch.viewmodel.RestaurantViewModel;
-import com.example.go4lunch.viewmodel.WorkerDataRepository;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,8 +23,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import static com.example.go4lunch.viewmodel.WorkerDataRepository.latLng;
 
 public class RestaurantListFragment extends Fragment {
 
@@ -51,7 +47,15 @@ public class RestaurantListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        getRestaurants();
+        if (MainActivity.isConnected(this.requireContext())) {
+            errorText.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+            getRestaurants();
+        } else {
+            errorText.setText(getText(R.string.error_no_internet));
+            errorText.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        }
     }
 
     private void getRestaurants() {
@@ -59,13 +63,13 @@ public class RestaurantListFragment extends Fragment {
     }
 
     public void setRestaurantList(List<Restaurant> restaurants) {
-        if (restaurants.size() == 0){
+        if (restaurants.isEmpty()) {
+            errorText.setText(getText(R.string.error_location));
             errorText.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
         } else {
             errorText.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
-
             Collections.sort(restaurants, new Restaurant.RestaurantComparator());
             RestaurantsAdapter adapter = new RestaurantsAdapter(restaurants);
             recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(), LinearLayoutManager.VERTICAL, false));

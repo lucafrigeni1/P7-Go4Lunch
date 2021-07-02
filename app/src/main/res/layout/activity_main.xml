@@ -45,7 +45,8 @@
         app:layout_constraintBottom_toBottomOf="@id/top_toolbar"
         android:layout_margin="8dp"
         android:background="@color/white"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:elevation="6dp">
 
         <ImageView
             android:id="@+id/search_btn"

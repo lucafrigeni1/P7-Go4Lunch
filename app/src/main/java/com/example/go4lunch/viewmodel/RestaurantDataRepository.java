@@ -1,5 +1,7 @@
 package com.example.go4lunch.viewmodel;
 
+import android.util.Log;
+
 import com.example.go4lunch.Retrofit.RetrofitApi;
 import com.example.go4lunch.Retrofit.RetrofitUtils;
 import com.example.go4lunch.models.Restaurant;
@@ -11,10 +13,12 @@ import com.example.go4lunch.models.retrofit.Places;
 import com.example.go4lunch.models.retrofit.Predictions;
 import com.example.go4lunch.models.retrofit.Result;
 import com.example.go4lunch.models.retrofit.ResultDetails;
+import com.google.android.gms.maps.model.Gap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.gson.Gson;
 import com.google.maps.android.SphericalUtil;
 
 import java.util.ArrayList;
@@ -38,36 +42,38 @@ public class RestaurantDataRepository {
 
     RetrofitApi retrofitApi = RetrofitUtils.getRetrofit().create(RetrofitApi.class);
 
-    //CREATE
-    public void addRestaurant(Restaurant restaurant) {
-        restaurantsCollectionReference.document(restaurant.getId()).set(restaurant);
-    }
-
     public void getPlaces(Double longitude, Double latitude) {
         List<Result> places = new ArrayList<>();
-
         retrofitApi.getNearbyPlaces(latitude + "," + longitude, "1500", "restaurant", RetrofitUtils.API_KEY)
                 .enqueue(new Callback<Places>() {
                     @Override
                     public void onResponse(@NonNull Call<Places> call, @NonNull Response<Places> response) {
                         String nextPage = Objects.requireNonNull(response.body()).getNextPageToken();
                         places.addAll(response.body().getResults());
+                        Log.e("onResponse: ", nextPage + " " + places.size());
                         if (nextPage != null) {
+                            try {
+                                Thread.sleep(2000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                             retrofitApi.getNextPageToken(nextPage, RetrofitUtils.API_KEY).enqueue(new Callback<Places>() {
                                 @Override
-                                public void onResponse(@NonNull Call<Places> call, @NonNull Response<Places> response) {
-                                    places.addAll(Objects.requireNonNull(response.body()).getResults());
+                                public void onResponse(@NonNull Call<Places> call, @NonNull Response<Places> response2) {
+                                    places.addAll(Objects.requireNonNull(response2.body()).getResults());
+                                    for (Result result : places) {
+                                        getPlacesDetails(result.getPlaceId());
+                                    }
                                 }
-
                                 @Override
                                 public void onFailure(@NonNull Call<Places> call, @NonNull Throwable t) {}
                             });
-                        }
-                        for (Result result : places) {
-                            getPlacesDetails(result.getPlaceId());
+                        } else {
+                            for (Result result : places) {
+                                getPlacesDetails(result.getPlaceId());
+                            }
                         }
                     }
-
                     @Override
                     public void onFailure(@NonNull Call<Places> call, @NonNull Throwable t) {}
                 });
@@ -121,7 +127,7 @@ public class RestaurantDataRepository {
                 rating);
 
         if (restaurant.getPhotos() != null && !(restaurant.getPhotos().isEmpty())) {
-            addRestaurant(restaurant);
+            restaurantsCollectionReference.document(restaurant.getId()).set(restaurant);
         }
     }
 
@@ -207,7 +213,7 @@ public class RestaurantDataRepository {
         }
     }
 
-    public void filter(String input, List<Restaurant> restaurantList, MutableLiveData data){
+    public void filter(String input, List<Restaurant> restaurantList, MutableLiveData<List<Restaurant>> data){
         List<Predictions> predictionsList = new ArrayList<>();
         List<Restaurant> filteredRestaurantList = new ArrayList<>();
 

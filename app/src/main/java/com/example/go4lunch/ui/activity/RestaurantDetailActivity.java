@@ -59,7 +59,6 @@ public class RestaurantDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(layout.activity_restaurant_details);
-
         findViewById();
         setViewModel();
         getCurrentUser();
@@ -87,8 +86,6 @@ public class RestaurantDetailActivity extends AppCompatActivity {
     private void getRestaurant() {
         String id = getIntent().getStringExtra(EXTRA_RESTAURANT);
         restaurantViewModel.getRestaurant(id).observe(this, this::setView);
-        Gson gson = new Gson();
-        Log.e("getCurrentUser: ", gson.toJson(currentUser));
     }
 
     private void setView(Restaurant restaurant) {

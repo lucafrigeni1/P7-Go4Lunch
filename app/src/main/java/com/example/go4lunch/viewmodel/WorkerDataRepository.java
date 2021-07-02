@@ -53,9 +53,7 @@ public class WorkerDataRepository {
                             null,
                             favoriteRestaurant);
 
-                    workersCollectionReference
-                            .document(worker.getId())
-                            .set(worker);
+                    workersCollectionReference.document(worker.getId()).set(worker);
                 }
                 data.setValue(true);
             }
@@ -66,9 +64,9 @@ public class WorkerDataRepository {
     //READ
     public LiveData<List<Worker>> getWorkersList() {
         MutableLiveData<List<Worker>> data = new MutableLiveData<>();
+        List<Worker> workerList = new ArrayList<>();
         workersCollectionReference.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                List<Worker> workerList = new ArrayList<>();
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     Worker worker = document.toObject(Worker.class);
                     workerList.add(worker);

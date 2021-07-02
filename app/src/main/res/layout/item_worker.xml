@@ -27,7 +27,7 @@
         android:textColor="@color/black"
         tools:text="Scarlett hasn't decided yet"/>
 
-    <ImageView
+    <View
         android:id="@+id/separation"
         android:layout_width="0dp"
         android:layout_height="0.5dp"
@@ -36,7 +36,7 @@
         app:layout_constraintStart_toStartOf="@id/worker_choice"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="10dp"
-        android:src="@color/black"
+        android:background="@color/black"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,5 @@
 package com.example.go4lunch.ui.recyclerview;
 
-
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
@@ -72,7 +71,7 @@ public class WorkersAdapter extends RecyclerView.Adapter<WorkersAdapter.WorkersV
                         .apply(RequestOptions.circleCropTransform())
                         .into(picture);
             } else
-                picture.setImageResource(R.drawable.ic_baseline_circle_24);
+                picture.setImageResource(R.drawable.ic_round_person_circle_24);
         }
 
         private void setWorkerChoice(Worker worker) {

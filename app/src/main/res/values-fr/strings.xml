@@ -37,6 +37,7 @@
 
     //Restaurant Fragment
     <string name="no_restaurant_found">Aucun restaurant trouvé \n Vérifiez que la géolocalisation/Connection soit activée</string>
+    <string name="no_coworkers_found">Aucun collègue trouvé \n Vérifiez que la connection est activée</string>
     <string name="always_open">Ouvert 24/24</string>
     <string name="open_soon">Ouvre à %1$s</string>
     <string name="already_open">Ouvert jusqu\'à %1$s</string>

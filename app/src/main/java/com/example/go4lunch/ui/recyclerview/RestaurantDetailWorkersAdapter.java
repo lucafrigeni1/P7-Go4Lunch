@@ -45,7 +45,7 @@ public class RestaurantDetailWorkersAdapter extends RecyclerView.Adapter<Restaur
 
         private final ImageView picture;
         private final TextView choice;
-        private final ImageView separation;
+        private final View separation;
 
         public RestaurantDetailWorkersViewHolder(@NonNull View itemView) {
             super(itemView);
