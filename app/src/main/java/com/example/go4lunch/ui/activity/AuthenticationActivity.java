@@ -86,7 +86,7 @@ public class AuthenticationActivity extends AppCompatActivity {
     }
 
     private void setWorkerViewModel() {
-        ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this);
+        ViewModelFactory viewModelFactory = Injections.provideViewModelFactory();
         this.workerViewModel = ViewModelProviders.of(this, viewModelFactory).get(WorkerViewModel.class);
     }
 }

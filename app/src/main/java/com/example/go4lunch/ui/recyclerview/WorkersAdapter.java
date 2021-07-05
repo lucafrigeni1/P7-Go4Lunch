@@ -46,7 +46,6 @@ public class WorkersAdapter extends RecyclerView.Adapter<WorkersAdapter.WorkersV
     }
 
     public static class WorkersViewHolder extends RecyclerView.ViewHolder {
-
         private final ConstraintLayout item;
         private final ImageView picture;
         private final TextView choice;

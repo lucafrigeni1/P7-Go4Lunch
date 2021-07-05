@@ -341,7 +341,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void setViewModels() {
-        ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this.getApplicationContext());
+        ViewModelFactory viewModelFactory = Injections.provideViewModelFactory();
         this.workerViewModel = ViewModelProviders.of(this, viewModelFactory).get(WorkerViewModel.class);
         this.restaurantViewModel = ViewModelProviders.of(this, viewModelFactory).get(RestaurantViewModel.class);
     }

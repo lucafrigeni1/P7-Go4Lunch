@@ -47,7 +47,7 @@ public class Notifications extends androidx.work.Worker {
         WorkRequest workRequest;
 
         int currentTimeInMinute = (currentTime /100 * 60) + (currentTime % 100);
-        int triggerTime = 1200;
+        int triggerTime = 1159;
         int triggerTimeInMinute = (triggerTime /100 * 60) + (triggerTime % 100);
 
         if (currentTime > triggerTime){

@@ -3,7 +3,6 @@ package com.example.go4lunch.ui.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -20,7 +19,6 @@ import com.example.go4lunch.ui.recyclerview.RestaurantDetailWorkersAdapter;
 import com.example.go4lunch.viewmodel.RestaurantViewModel;
 import com.example.go4lunch.viewmodel.WorkerViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -199,7 +197,7 @@ public class RestaurantDetailActivity extends AppCompatActivity {
     }
 
     private void setViewModel() {
-        ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this.getApplicationContext());
+        ViewModelFactory viewModelFactory = Injections.provideViewModelFactory();
         this.workerViewModel = ViewModelProviders.of(this, viewModelFactory).get(WorkerViewModel.class);
         this.restaurantViewModel = ViewModelProviders.of(this, viewModelFactory).get(RestaurantViewModel.class);
     }

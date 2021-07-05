@@ -7,17 +7,17 @@ import com.example.go4lunch.viewmodel.WorkerDataRepository;
 
 public class Injections {
 
-    public static RestaurantDataRepository provideRestaurantDataRepository(Context context){
+    public static RestaurantDataRepository provideRestaurantDataRepository(){
         return new RestaurantDataRepository();
     }
 
-    public static WorkerDataRepository provideWorkerDataRepository(Context context){
+    public static WorkerDataRepository provideWorkerDataRepository(){
         return new WorkerDataRepository();
     }
 
-    public static ViewModelFactory provideViewModelFactory(Context context){
-        RestaurantDataRepository restaurantDataRepository = provideRestaurantDataRepository(context);
-        WorkerDataRepository workerDataRepository = provideWorkerDataRepository(context);
+    public static ViewModelFactory provideViewModelFactory(){
+        RestaurantDataRepository restaurantDataRepository = provideRestaurantDataRepository();
+        WorkerDataRepository workerDataRepository = provideWorkerDataRepository();
         return new ViewModelFactory(restaurantDataRepository, workerDataRepository);
     }
 }

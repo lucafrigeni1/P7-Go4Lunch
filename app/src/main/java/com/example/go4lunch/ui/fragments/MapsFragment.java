@@ -77,7 +77,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void setViewModel() {
-        ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this.getContext());
+        ViewModelFactory viewModelFactory = Injections.provideViewModelFactory();
         this.restaurantViewModel = ViewModelProviders.of(this, viewModelFactory).get(RestaurantViewModel.class);
     }
 

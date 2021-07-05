@@ -13,12 +13,10 @@ import com.example.go4lunch.models.retrofit.Places;
 import com.example.go4lunch.models.retrofit.Predictions;
 import com.example.go4lunch.models.retrofit.Result;
 import com.example.go4lunch.models.retrofit.ResultDetails;
-import com.google.android.gms.maps.model.Gap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.gson.Gson;
 import com.google.maps.android.SphericalUtil;
 
 import java.util.ArrayList;
@@ -145,29 +143,17 @@ public class RestaurantDataRepository {
 
     public LiveData<List<Restaurant>> getRestaurantList() {
         MutableLiveData<List<Restaurant>> data = new MutableLiveData<>();
-        List<Worker> workerList = new ArrayList<>();
-        List<Restaurant> restaurantList = new ArrayList<>();
-
-        workersCollectionReference.get().addOnCompleteListener(taskWorker -> {
-            for (QueryDocumentSnapshot document : taskWorker.getResult()) {
-                Worker worker = document.toObject(Worker.class);
-                workerList.add(worker);
-            }
-
-            restaurantsCollectionReference.get().addOnCompleteListener(taskRestaurant -> {
-                for (QueryDocumentSnapshot document : taskRestaurant.getResult()) {
-                    Restaurant restaurant = document.toObject(Restaurant.class);
-                    updateRestaurantParticipants(restaurant, workerList);
-                    distanceFilter(restaurant, restaurantList);
-                }
-                data.setValue(restaurantList);
-            });
-        });
+        getCollections(data, false, null);
         return data;
     }
 
     public LiveData<List<Restaurant>> getFilteredRestaurantList(String input) {
         MutableLiveData<List<Restaurant>> data = new MutableLiveData<>();
+        getCollections(data, true, input);
+        return data;
+    }
+
+    public void getCollections(MutableLiveData<List<Restaurant>> data, boolean isFilter, String input){
         List<Worker> workerList = new ArrayList<>();
         List<Restaurant> restaurantList = new ArrayList<>();
 
@@ -183,10 +169,12 @@ public class RestaurantDataRepository {
                     updateRestaurantParticipants(restaurant, workerList);
                     distanceFilter(restaurant, restaurantList);
                 }
-                filter(input, restaurantList, data);
+                if (isFilter){
+                    filter(input, restaurantList, data);
+                } else
+                data.setValue(restaurantList);
             });
         });
-        return data;
     }
 
     public void updateRestaurantParticipants(Restaurant restaurant, List<Worker> workerList){
@@ -217,11 +205,9 @@ public class RestaurantDataRepository {
         List<Predictions> predictionsList = new ArrayList<>();
         List<Restaurant> filteredRestaurantList = new ArrayList<>();
 
-        retrofitApi.getAutocomplete(input,
-                latLng.latitude + "," + latLng.longitude,
-                "1500",
-                "establishment",
-                RetrofitUtils.API_KEY).enqueue(new Callback<Autocomplete>() {
+        retrofitApi.getAutocomplete(input, latLng.latitude + "," + latLng.longitude,
+                "1500", "establishment", RetrofitUtils.API_KEY)
+                .enqueue(new Callback<Autocomplete>() {
             @Override
             public void onResponse(@NonNull Call<Autocomplete> call, @NonNull Response<Autocomplete> response) {
                 predictionsList.addAll(Objects.requireNonNull(response.body()).getPredictions());

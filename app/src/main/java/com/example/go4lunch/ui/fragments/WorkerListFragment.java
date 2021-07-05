@@ -1,7 +1,6 @@
 package com.example.go4lunch.ui.fragments;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,8 +24,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import static com.example.go4lunch.viewmodel.WorkerDataRepository.latLng;
 
 public class WorkerListFragment extends Fragment {
 
@@ -91,7 +88,7 @@ public class WorkerListFragment extends Fragment {
     }
 
     private void setViewModel() {
-        ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this.getContext());
+        ViewModelFactory viewModelFactory = Injections.provideViewModelFactory();
         this.workerviewModel = ViewModelProviders.of(this, viewModelFactory).get(WorkerViewModel.class);
     }
 }
