@@ -24,7 +24,7 @@ public class RestaurantViewModel extends ViewModel {
     }
 
     public LiveData<List<Restaurant>> getRestaurantsList(){
-        return restaurantDataSource.getRestaurantList();
+        return restaurantDataSource.getRestaurantsList();
     }
 
     public LiveData<List<Restaurant>> getFilteredRestaurantsList(String input){

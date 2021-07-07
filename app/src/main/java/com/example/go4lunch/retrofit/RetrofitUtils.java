@@ -1,4 +1,4 @@
-package com.example.go4lunch.Retrofit;
+package com.example.go4lunch.retrofit;
 
 
 import com.google.gson.FieldNamingPolicy;

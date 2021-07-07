@@ -5,8 +5,6 @@ import com.example.go4lunch.models.Worker;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
@@ -16,10 +14,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-public class WorkerDataRepository {
+import static com.example.go4lunch.Utils.workersCollectionReference;
 
-    public final static CollectionReference workersCollectionReference =
-            FirebaseFirestore.getInstance().collection("Worker");
+public class WorkerDataRepository {
 
     public String currentUserId = FirebaseAuth.getInstance().getUid();
     public static LatLng latLng;
@@ -62,6 +59,17 @@ public class WorkerDataRepository {
     }
 
     //READ
+    public LiveData<Worker> getCurrentUser() {
+        MutableLiveData<Worker> data = new MutableLiveData<>();
+        workersCollectionReference.document(currentUserId).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Worker worker = task.getResult().toObject(Worker.class);
+                data.setValue(worker);
+            }
+        });
+        return data;
+    }
+
     public LiveData<List<Worker>> getWorkersList() {
         MutableLiveData<List<Worker>> data = new MutableLiveData<>();
         List<Worker> workerList = new ArrayList<>();
@@ -72,17 +80,6 @@ public class WorkerDataRepository {
                     workerList.add(worker);
                 }
                 data.setValue(workerList);
-            }
-        });
-        return data;
-    }
-
-    public LiveData<Worker> getCurrentUser() {
-        MutableLiveData<Worker> data = new MutableLiveData<>();
-        workersCollectionReference.document(currentUserId).get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Worker worker = task.getResult().toObject(Worker.class);
-                data.setValue(worker);
             }
         });
         return data;

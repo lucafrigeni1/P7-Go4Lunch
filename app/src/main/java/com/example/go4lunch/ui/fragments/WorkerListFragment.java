@@ -64,23 +64,15 @@ public class WorkerListFragment extends Fragment {
     }
 
     private void setRecyclerView(List<Worker> workers) {
-        for (Worker worker : workers){
-            if (worker.getRestaurant() == null){
-                Restaurant restaurant = new Restaurant("",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        0,
-                        null,
-                        0);
-                worker.setRestaurant(restaurant);
+        Collections.sort(workers,(o1, o2) -> {
+            if (o2.getRestaurant() == null){
+                return -1;
             }
-        }
-        Collections.sort(workers,(o1, o2) -> o2.getRestaurant().getId().compareTo(o1.getRestaurant().getId()));
+            if (o1.getRestaurant() == null){
+                return 1;
+            }
+            return o2.getRestaurant().getId().compareTo(o1.getRestaurant().getId());
+        });
 
         WorkersAdapter adapter = new WorkersAdapter(workers);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(), LinearLayoutManager.VERTICAL, false));

@@ -138,7 +138,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                             location = task.getResult();
                             if (location != null) {
                                 getLocation();
-                                //getPlaces();
                                 getRestaurant();
                             } else
                                 Toast.makeText(this.getContext(), getString(R.string.error_location), Toast.LENGTH_SHORT).show();
@@ -157,10 +156,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         lng = location.getLongitude();
         latLng = new LatLng(lat, lng);
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
-    }
-
-    private void getPlaces() {
-        restaurantViewModel.getPlaces(lng, lat);
     }
 
     private void getRestaurant() {

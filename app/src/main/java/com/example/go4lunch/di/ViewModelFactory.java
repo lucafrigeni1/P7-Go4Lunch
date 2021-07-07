@@ -21,6 +21,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
     }
 
     @NonNull
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         if (modelClass.isAssignableFrom(RestaurantViewModel.class)){

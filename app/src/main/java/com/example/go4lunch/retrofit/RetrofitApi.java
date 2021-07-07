@@ -1,4 +1,4 @@
-package com.example.go4lunch.Retrofit;
+package com.example.go4lunch.retrofit;
 
 import com.example.go4lunch.models.retrofit.Autocomplete;
 import com.example.go4lunch.models.retrofit.PlaceDetail;

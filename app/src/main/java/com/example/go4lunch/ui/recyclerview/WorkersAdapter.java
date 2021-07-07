@@ -74,7 +74,7 @@ public class WorkersAdapter extends RecyclerView.Adapter<WorkersAdapter.WorkersV
         }
 
         private void setWorkerChoice(Worker worker) {
-            if (!worker.getRestaurant().getId().isEmpty()) {
+            if (worker.getRestaurant() != null) {
                 choice.setText(itemView.getContext().getString(
                         R.string.decision, worker.getName(), worker.getRestaurant().getName()));
             } else {
@@ -85,7 +85,7 @@ public class WorkersAdapter extends RecyclerView.Adapter<WorkersAdapter.WorkersV
         }
 
         private void startRestaurantDetailActivity(Worker worker) {
-            if (!worker.getRestaurant().getId().isEmpty())
+            if (worker.getRestaurant() != null)
                 item.setOnClickListener(v -> {
                     Intent intent = new Intent(v.getContext(), RestaurantDetailActivity.class);
                     intent.putExtra(RestaurantDetailActivity.EXTRA_RESTAURANT, worker.getRestaurant().getId());

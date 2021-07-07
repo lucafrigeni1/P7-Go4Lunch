@@ -9,27 +9,52 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+import androidx.lifecycle.MutableLiveData;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(JUnit4.class)
 public class WorkerViewModelUnitTest {
 
     @Rule
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
-    private WorkerViewModel workerViewModel;
-
     @Mock
     WorkerDataRepository workerDataRepository;
+
+    WorkerViewModel workerViewModel;
+
+    List<Worker> workerListTest = new ArrayList<>();
+    List<Restaurant> restaurantListTest = new ArrayList<>();
+
+    Worker workerTest = new Worker(
+            "0",
+            null,
+            "luca",
+            "luca@mail.com",
+            null,
+            null);
+
+    Restaurant restaurantTest = new Restaurant(
+            "1",
+            null,
+            "testName",
+            null,
+            "testPlace",
+            null,
+            null,
+            null,
+            0,
+            null,
+            0);
 
     @Before
     public void setup(){
@@ -37,64 +62,50 @@ public class WorkerViewModelUnitTest {
         workerViewModel = new WorkerViewModel(workerDataRepository);
     }
 
-    Worker workerTest = new Worker(workerDataRepository.currentUserId,
-            null, "luca", "luca@mail.com", null, null);
+    @Test
+    public void createWorkerWithSuccess() {
+        MutableLiveData<Boolean> data = new MutableLiveData<>();
+        data.postValue(false);
 
-    Restaurant restaurantTest = new Restaurant("1", null, "testName", null,
-            "testPlace", null, null, null, 0,
-            null, 0);
-
-
-    List<Worker> workerListTest = new ArrayList<>();
-    List<Restaurant> restaurantListTest = new ArrayList<>();
+        when(workerDataRepository.createWorker()).thenReturn(data);
+        workerViewModel.createWorker().observeForever(aBoolean -> assertEquals(aBoolean, false));
+    }
 
     @Test
     public void getCurrentUserWithSuccess() {
-        workerViewModel.getCurrentUser();
-        when(workerViewModel.getCurrentUser()).thenReturn(workerTest);
-        workerViewModel.getCurrentUser().observeForever(worker -> {
-            assertEquals(worker, workerTest);
-        });
+        MutableLiveData<Worker> data = new MutableLiveData<>();
+        data.postValue(workerTest);
+
+        when(workerDataRepository.getCurrentUser()).thenReturn(data);
+        workerViewModel.getCurrentUser().observeForever(worker -> assertEquals(worker, workerTest));
     }
 
     @Test
     public void getWorkersListWithSuccess() {
         workerListTest.add(workerTest);
-        workerViewModel.getWorkersList();
-        when(workerViewModel.getWorkersList()).thenReturn(workerListTest);
-        workerViewModel.getWorkersList().observeForever(workerList -> {
-            assertEquals(workerList, workerListTest);
-        });
-    }
+        MutableLiveData<List<Worker>> data = new MutableLiveData<>();
+        data.postValue(workerListTest);
 
-    @Test
-    public void createWorkerWithSuccess() {
-        Boolean isCreated = false;
-        workerViewModel.createWorker();
-        when(workerViewModel.createWorker()).thenReturn(isCreated);
-        workerViewModel.createWorker().observeForever(aBoolean -> {
-            assertEquals(aBoolean, isCreated);
-        });
+        when(workerDataRepository.getWorkersList()).thenReturn(data);
+        workerViewModel.getWorkersList().observeForever(workerList -> assertEquals(workerList, workerListTest));
     }
 
     @Test
     public void updateWorkerChoiceWithSuccess() {
-        Boolean isChosen = false;
-        workerViewModel.updateWorkerChoice(restaurantTest);
-        when(workerViewModel.updateWorkerChoice(restaurantTest)).thenReturn(isChosen);
-        workerViewModel.updateWorkerChoice(restaurantTest).observeForever(aBoolean -> {
-            assertEquals(aBoolean, isChosen);
-        });
+        MutableLiveData<Boolean> data = new MutableLiveData<>();
+        data.postValue(false);
+
+        when(workerDataRepository.updateWorkerChoice(restaurantTest)).thenReturn(data);
+        workerViewModel.updateWorkerChoice(restaurantTest).observeForever(aBoolean -> assertEquals(aBoolean, false));
     }
 
     @Test
     public void updateWorkerFavoriteListWithSuccess() {
-        Boolean isFavorite = false;
+        MutableLiveData<Boolean> data = new MutableLiveData<>();
+        data.postValue(false);
+
         restaurantListTest.add(restaurantTest);
-        workerViewModel.updateWorkerFavoriteList(restaurantListTest);
-        when(workerViewModel.updateWorkerFavoriteList(restaurantListTest)).thenReturn(isFavorite);
-        workerViewModel.updateWorkerFavoriteList(restaurantListTest).observeForever(aBoolean -> {
-            assertEquals(aBoolean, isFavorite);
-        });
+        when(workerDataRepository.updateWorkerFavoriteList(restaurantListTest)).thenReturn(data);
+        workerViewModel.updateWorkerFavoriteList(restaurantListTest).observeForever(aBoolean -> assertEquals(aBoolean, false));
     }
 }

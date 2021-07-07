@@ -28,8 +28,8 @@ import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import androidx.work.WorkerParameters;
 
-import static com.example.go4lunch.viewmodel.RestaurantDataRepository.restaurantsCollectionReference;
-import static com.example.go4lunch.viewmodel.WorkerDataRepository.workersCollectionReference;
+import static com.example.go4lunch.Utils.restaurantsCollectionReference;
+import static com.example.go4lunch.Utils.workersCollectionReference;
 
 public class Notifications extends androidx.work.Worker {
 
