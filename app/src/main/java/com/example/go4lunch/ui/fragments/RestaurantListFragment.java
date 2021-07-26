@@ -64,22 +64,24 @@ public class RestaurantListFragment extends Fragment {
     }
 
     public void setRestaurantList(List<Restaurant> restaurants) {
-        if (WorkerDataRepository.latLng == null){
-            errorText.setText(getText(R.string.error_location));
-            errorText.setVisibility(View.VISIBLE);
-            recyclerView.setVisibility(View.GONE);
-        } else {
-            if (restaurants.isEmpty()) {
-                errorText.setText(getText(R.string.no_restaurant_found));
+        if (isVisible()){
+            if (WorkerDataRepository.latLng == null){
+                errorText.setText(getText(R.string.error_location));
                 errorText.setVisibility(View.VISIBLE);
                 recyclerView.setVisibility(View.GONE);
             } else {
-                errorText.setVisibility(View.GONE);
-                recyclerView.setVisibility(View.VISIBLE);
-                Collections.sort(restaurants, new Restaurant.RestaurantComparator());
-                RestaurantsAdapter adapter = new RestaurantsAdapter(restaurants);
-                recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(), LinearLayoutManager.VERTICAL, false));
-                recyclerView.setAdapter(adapter);
+                if (restaurants.isEmpty()) {
+                    errorText.setText(getText(R.string.no_restaurant_found));
+                    errorText.setVisibility(View.VISIBLE);
+                    recyclerView.setVisibility(View.GONE);
+                } else {
+                    errorText.setVisibility(View.GONE);
+                    recyclerView.setVisibility(View.VISIBLE);
+                    Collections.sort(restaurants, new Restaurant.RestaurantComparator());
+                    RestaurantsAdapter adapter = new RestaurantsAdapter(restaurants);
+                    recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(), LinearLayoutManager.VERTICAL, false));
+                    recyclerView.setAdapter(adapter);
+                }
             }
         }
     }

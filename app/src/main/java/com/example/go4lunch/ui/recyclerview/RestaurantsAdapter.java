@@ -64,13 +64,6 @@ public class RestaurantsAdapter extends RecyclerView.Adapter<RestaurantsAdapter.
         private final TextView people;
         private final ImageView rating;
 
-        int currentTime;
-        int day;
-        List<Integer> openList;
-        List<Integer> closeList;
-        int open;
-        int close;
-
         public RestaurantsViewHolder(@NonNull View itemView) {
             super(itemView);
             item = itemView.findViewById(R.id.restaurant_item);
@@ -103,8 +96,9 @@ public class RestaurantsAdapter extends RecyclerView.Adapter<RestaurantsAdapter.
         }
 
         private void setOpening(Restaurant restaurant) {
-            getCurrentTime();
-            getOpenAndCloseHours(restaurant);
+            int currentTime = getCurrentTime();
+            int open = getOpenHour(restaurant, getCurrentDay(), currentTime);
+            int close = getCloseHour(restaurant, getCurrentDay(), currentTime);
 
             if (open == 0 && close == -1) {
                 opening.setText(R.string.always_open);
@@ -128,7 +122,7 @@ public class RestaurantsAdapter extends RecyclerView.Adapter<RestaurantsAdapter.
                     meridiem = "am";
                 }
 
-                int displayHour = setDisplayHour(hour);
+                int displayHour = getDisplayHour(hour);
 
                 if (minute == 0){
                     opening.setText(itemView.getContext().getString(R.string.open_soon,
@@ -149,7 +143,7 @@ public class RestaurantsAdapter extends RecyclerView.Adapter<RestaurantsAdapter.
                     meridiem = "am";
                 }
 
-                int displayHour = setDisplayHour(hour);
+                int displayHour = getDisplayHour(hour);
 
                 if (minute == 0){
                     opening.setText(itemView.getContext().getString(R.string.already_open,
@@ -162,40 +156,21 @@ public class RestaurantsAdapter extends RecyclerView.Adapter<RestaurantsAdapter.
             }
         }
 
-        private int setDisplayHour(int hour){
-            if (hour == 13){
-                hour = 1;
-            } else if (hour == 14){
-                hour = 2;
-            } else if (hour == 15){
-                hour = 3;
-            } else if (hour == 16){
-                hour = 4;
-            } else if (hour == 17){
-                hour = 5;
-            } else if (hour == 18){
-                hour = 6;
-            } else if (hour == 19){
-                hour = 7;
-            } else if (hour == 20){
-                hour = 8;
-            } else if (hour == 21){
-                hour = 9;
-            } else if (hour == 22){
-                hour = 10;
-            } else if (hour == 23){
-                hour = 11;
-            } else if (hour == 24){
-                hour = 12;
-            }
-            return hour;
+        private int getDisplayHour(int hour){
+            if (hour >= 13) {
+                return hour - 12;
+            } else
+                return hour;
         }
 
-        private void getCurrentTime() {
+        private int getCurrentTime() {
             Date date = Calendar.getInstance().getTime();
             DateFormat hourFormat = new SimpleDateFormat("HHmm", Locale.ENGLISH);
-            currentTime = Integer.parseInt(hourFormat.format(date));
+            return Integer.parseInt(hourFormat.format(date));
+        }
 
+        private int getCurrentDay(){
+            int day = 0;
             switch (Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
                 case Calendar.MONDAY:
                     day = 1;
@@ -219,24 +194,19 @@ public class RestaurantsAdapter extends RecyclerView.Adapter<RestaurantsAdapter.
                     day = 7;
                     break;
             }
+            return day;
         }
 
-        private void getOpenAndCloseHours(Restaurant restaurant) {
-            openList = new ArrayList<>();
-            closeList = new ArrayList<>();
+        private int getOpenHour(Restaurant restaurant, int day, int currentTime){
+            List<Integer> openList = new ArrayList<>();
+            int open = 0;
 
             for (Period period : restaurant.getOpenHours()) {
                 if (day == period.getOpen().getDay()) {
                     openList.add(Integer.parseInt(period.getOpen().getTime()));
                 }
-
-                if (day == period.getClose().getDay()) {
-                    closeList.add(Integer.parseInt(period.getClose().getTime()));
-                }
             }
-
             Collections.sort(openList);
-            Collections.sort(closeList);
 
             if (openList.isEmpty()) {
                 open = -1;
@@ -247,6 +217,19 @@ public class RestaurantsAdapter extends RecyclerView.Adapter<RestaurantsAdapter.
             } else if (openList.size() == 2 && currentTime > openList.get(0) && currentTime < openList.get(1)) {
                 open = openList.get(1);
             }
+            return open;
+        }
+
+        private int getCloseHour(Restaurant restaurant, int day, int currentTime) {
+            List<Integer> closeList = new ArrayList<>();
+            int close = 0;
+
+            for (Period period : restaurant.getOpenHours()) {
+                if (day == period.getClose().getDay()) {
+                    closeList.add(Integer.parseInt(period.getClose().getTime()));
+                }
+            }
+            Collections.sort(closeList);
 
             if (closeList.isEmpty()) {
                 close = -1;
@@ -257,6 +240,8 @@ public class RestaurantsAdapter extends RecyclerView.Adapter<RestaurantsAdapter.
             } else if (closeList.size() == 2 && currentTime > closeList.get(0) && currentTime < closeList.get(1)) {
                 close = closeList.get(1);
             }
+
+            return close;
         }
 
         private void setDistance(Restaurant restaurant) {

@@ -163,6 +163,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void setMarkers(List<Restaurant> restaurantList) {
+        Log.e("setMarkers: ", restaurantList.size() + " " );
         map.clear();
 
         if (getContext() != null) {

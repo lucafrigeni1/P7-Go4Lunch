@@ -10,6 +10,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
@@ -149,12 +150,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void afterTextChanged(Editable s) {
                 if (isConnected(MainActivity.this)) {
+
                     if (s.length() >= 3) {
                         if (latLng != null) {
                             setSearchResult(s.toString());
                         }
-                    } else
+                    } else {
                         setSearchResult(null);
+                        Log.e("afterTextChanged: ", "" + s.length());
+                    }
                 }
             }
         });
@@ -163,6 +167,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void setSearchResult(String search) {
         if (mapsFragment.isVisible()) {
             if (search == null) {
+                Log.e("setsearch: ", "HERE 2");
                 restaurantViewModel.getRestaurantsList().observe(MainActivity.this, mapsFragment::setMarkers);
             } else
                 restaurantViewModel.getFilteredRestaurantsList(search).observe(MainActivity.this, mapsFragment::setMarkers);
@@ -295,7 +300,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void pageSelected() {
         initFragment();
         setFragment(mapsFragment);
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+        bottomNavigationView.setOnItemSelectedListener(item -> {
             switch (item.getItemId()) {
                 case R.id.map_page:
                     toolbar.setTitle(getString(R.string.toolbar_text_1));

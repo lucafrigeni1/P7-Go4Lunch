@@ -9,7 +9,6 @@ import android.widget.TextView;
 import com.example.go4lunch.R;
 import com.example.go4lunch.di.Injections;
 import com.example.go4lunch.di.ViewModelFactory;
-import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.models.Worker;
 import com.example.go4lunch.ui.activity.MainActivity;
 import com.example.go4lunch.ui.recyclerview.WorkersAdapter;

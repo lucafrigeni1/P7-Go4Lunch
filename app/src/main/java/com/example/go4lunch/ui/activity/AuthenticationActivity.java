@@ -16,11 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -51,16 +46,6 @@ public class AuthenticationActivity extends AppCompatActivity {
                 new AuthUI.IdpConfig.FacebookBuilder().build(),
                 new AuthUI.IdpConfig.TwitterBuilder().build()
         );
-
-        //ActivityResultLauncher<Intent> launcher = registerForActivityResult(
-        //        new ActivityResultContracts.StartActivityForResult(), result ->
-        //                AuthUI.getInstance().createSignInIntentBuilder()
-        //                .setTheme(R.style.LoginTheme)
-        //                .setAvailableProviders(providers)
-        //                .setIsSmartLockEnabled(false, true)
-        //                .setLogo(R.drawable.logo)
-        //                .build()
-        //);
 
         startActivityForResult(
                 AuthUI.getInstance().createSignInIntentBuilder()

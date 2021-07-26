@@ -15,10 +15,6 @@ public class RestaurantViewModel extends ViewModel {
         this.restaurantDataSource = restaurantDataRepository;
     }
 
-    public void getPlaces(Double longitude, Double latitude){
-        restaurantDataSource.getPlaces(longitude,latitude);
-    }
-
     public LiveData<Restaurant> getRestaurant(String id){
         return restaurantDataSource.getRestaurant(id);
     }

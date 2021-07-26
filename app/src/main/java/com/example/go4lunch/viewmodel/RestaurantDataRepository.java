@@ -1,5 +1,7 @@
 package com.example.go4lunch.viewmodel;
 
+import android.util.Log;
+
 import com.example.go4lunch.retrofit.RetrofitApi;
 import com.example.go4lunch.retrofit.RetrofitUtils;
 import com.example.go4lunch.models.Restaurant;
@@ -33,7 +35,6 @@ import static com.example.go4lunch.viewmodel.WorkerDataRepository.latLng;
 public class RestaurantDataRepository {
 
     RetrofitApi retrofitApi = RetrofitUtils.getRetrofit().create(RetrofitApi.class);
-
 
     //READ
     public LiveData<Restaurant> getRestaurant(String id) {
@@ -76,14 +77,17 @@ public class RestaurantDataRepository {
                     distanceFilter(restaurant, restaurantList);
                 }
 
-               if (restaurantList.isEmpty() && latLng != null){
-                   getPlaces(latLng.longitude, latLng.latitude);
-               }
+                Log.e( "getCollections: ", input + " " +  isFilter +  " " + restaurantList.size());
 
-                if (isFilter){
-                    filter(input, restaurantList, data);
-                } else
-                data.setValue(restaurantList);
+               if (restaurantList.isEmpty() && latLng != null){
+                   getPlaces(latLng.longitude, latLng.latitude, restaurantList, data);
+               } else {
+                   if (isFilter){
+                       filter(input, restaurantList, data);
+                   } else
+                       //annuler appel retrofit filter
+                       data.setValue(restaurantList);
+               }
             });
         });
     }
@@ -137,7 +141,7 @@ public class RestaurantDataRepository {
         });
     }
 
-    public void getPlaces(Double longitude, Double latitude) {
+    public void getPlaces(Double longitude, Double latitude, List<Restaurant> restaurantList, MutableLiveData<List<Restaurant>> data) {
         List<Result> places = new ArrayList<>();
         retrofitApi.getNearbyPlaces(latitude + "," + longitude, "1500", "restaurant", RetrofitUtils.API_KEY)
                 .enqueue(new Callback<Places>() {
@@ -155,16 +159,20 @@ public class RestaurantDataRepository {
                                 @Override
                                 public void onResponse(@NonNull Call<Places> call, @NonNull Response<Places> response2) {
                                     places.addAll(Objects.requireNonNull(response2.body()).getResults());
+                                    int counter = places.size();
                                     for (Result result : places) {
-                                        getPlacesDetails(result.getPlaceId());
+                                        counter--;
+                                        getPlacesDetails(result.getPlaceId(), restaurantList, counter, data);
                                     }
                                 }
                                 @Override
                                 public void onFailure(@NonNull Call<Places> call, @NonNull Throwable t) {}
                             });
                         } else {
+                            int counter = places.size();
                             for (Result result : places) {
-                                getPlacesDetails(result.getPlaceId());
+                                counter--;
+                                getPlacesDetails(result.getPlaceId(), restaurantList, counter, data);
                             }
                         }
                     }
@@ -173,19 +181,25 @@ public class RestaurantDataRepository {
                 });
     }
 
-    private void getPlacesDetails(String id) {
+    private void getPlacesDetails(String id, List<Restaurant> restaurantList, int counter, MutableLiveData<List<Restaurant>> data) {
         retrofitApi.getPlacesDetails(RetrofitUtils.API_KEY, id).enqueue(new Callback<PlaceDetail>() {
             @Override
             public void onResponse(@NonNull Call<PlaceDetail> call, @NonNull Response<PlaceDetail> response) {
-                setRestaurant(Objects.requireNonNull(response.body()).getResult(), id);
-            }
+                Restaurant restaurant = setRestaurant(Objects.requireNonNull(response.body()).getResult(), id);
+                if (restaurant != null){
+                    restaurantList.add(restaurant);
+                }
 
+                if (counter == 0) {
+                    data.setValue(restaurantList);
+                }
+            }
             @Override
             public void onFailure(@NonNull Call<PlaceDetail> call, @NonNull Throwable t) {}
         });
     }
 
-    public void setRestaurant(ResultDetails placeDetail, String id){
+    public Restaurant setRestaurant(ResultDetails placeDetail, String id){
         List<Worker> workers = new ArrayList<>();
 
         String photos = "";
@@ -222,6 +236,8 @@ public class RestaurantDataRepository {
 
         if (restaurant.getPhotos() != null && !(restaurant.getPhotos().isEmpty())) {
             restaurantsCollectionReference.document(restaurant.getId()).set(restaurant);
-        }
+            return restaurant;
+        } else
+            return null;
     }
 }
