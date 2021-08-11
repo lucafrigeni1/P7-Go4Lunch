@@ -240,7 +240,6 @@ public class RestaurantsAdapter extends RecyclerView.Adapter<RestaurantsAdapter.
             } else if (closeList.size() == 2 && currentTime > closeList.get(0) && currentTime < closeList.get(1)) {
                 close = closeList.get(1);
             }
-
             return close;
         }
 

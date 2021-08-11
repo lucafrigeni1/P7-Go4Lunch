@@ -1,7 +1,5 @@
 package com.example.go4lunch.viewmodel;
 
-import android.util.Log;
-
 import com.example.go4lunch.retrofit.RetrofitApi;
 import com.example.go4lunch.retrofit.RetrofitUtils;
 import com.example.go4lunch.models.Restaurant;
@@ -77,15 +75,12 @@ public class RestaurantDataRepository {
                     distanceFilter(restaurant, restaurantList);
                 }
 
-                Log.e( "getCollections: ", input + " " +  isFilter +  " " + restaurantList.size());
-
                if (restaurantList.isEmpty() && latLng != null){
                    getPlaces(latLng.longitude, latLng.latitude, restaurantList, data);
                } else {
                    if (isFilter){
                        filter(input, restaurantList, data);
                    } else
-                       //annuler appel retrofit filter
                        data.setValue(restaurantList);
                }
             });

@@ -163,16 +163,15 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void setMarkers(List<Restaurant> restaurantList) {
-        Log.e("setMarkers: ", restaurantList.size() + " " );
         map.clear();
 
         if (getContext() != null) {
-            for (int i = 0; i < restaurantList.size(); i++) {
-                com.example.go4lunch.models.retrofit.Location location = restaurantList.get(i).getLocation();
+            for (Restaurant restaurant : restaurantList) {
+                com.example.go4lunch.models.retrofit.Location location = restaurant.getLocation();
                 LatLng latLng = new LatLng(location.getLat(), location.getLng());
 
                 Bitmap bm;
-                if (restaurantList.get(i).getWorkerList().size() == 0) {
+                if (restaurant.getWorkerList().size() == 0) {
                     bm = getBitmapFromVectorDrawable(getContext(), R.drawable.ic_marker_red);
                 } else {
                     bm = getBitmapFromVectorDrawable(getContext(), R.drawable.ic_marker_green);
@@ -181,7 +180,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 map.addMarker(new MarkerOptions()
                         .position(latLng)
                         .icon(BitmapDescriptorFactory.fromBitmap(bm))
-                        .title(restaurantList.get(i).getName())
+                        .title(restaurant.getName())
                 );
             }
         }

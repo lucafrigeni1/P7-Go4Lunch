@@ -17,7 +17,6 @@
         android:layout_height="wrap_content"
         android:paddingVertical="5dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:menu="@menu/top_app_bar"
         app:title="@string/toolbar_text_1"
         android:background="@color/main"
         app:titleTextColor="@color/white">
