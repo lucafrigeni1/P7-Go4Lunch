@@ -137,7 +137,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                         if (task.isSuccessful()) {
                             location = task.getResult();
                             if (location != null) {
-                                getLocation();
+                                getAndSaveLocation();
                                 getRestaurant();
                             } else
                                 Toast.makeText(this.getContext(), getString(R.string.error_location), Toast.LENGTH_SHORT).show();
@@ -151,7 +151,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    private void getLocation() {
+    private void getAndSaveLocation() {
         lat = location.getLatitude();
         lng = location.getLongitude();
         latLng = new LatLng(lat, lng);
