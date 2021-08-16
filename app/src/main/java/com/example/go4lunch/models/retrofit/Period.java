@@ -6,6 +6,15 @@ public class Period {
     private Close close;
     private Open open;
 
+    public Period(Close close, Open open) {
+        this.close = close;
+        this.open = open;
+    }
+
+    public Period() {
+
+    }
+
     public Close getClose() {
         return close;
     }

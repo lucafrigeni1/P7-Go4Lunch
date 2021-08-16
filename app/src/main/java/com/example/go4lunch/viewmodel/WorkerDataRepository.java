@@ -2,7 +2,6 @@ package com.example.go4lunch.viewmodel;
 
 import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.models.Worker;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -14,12 +13,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import static com.example.go4lunch.Utils.workersCollectionReference;
+import static com.example.go4lunch.CollectionsUtils.workersCollectionReference;
 
 public class WorkerDataRepository {
 
     public String currentUserId = FirebaseAuth.getInstance().getUid();
-    public static LatLng latLng;
 
     public FirebaseUser getFirebaseUser() {
         return FirebaseAuth.getInstance().getCurrentUser();

@@ -6,6 +6,15 @@ public class Open {
     private Integer day;
     private String time;
 
+    public Open(Integer day, String time) {
+        this.day = day;
+        this.time = time;
+    }
+
+    public Open() {
+
+    }
+
     public Integer getDay() {
         return day;
     }

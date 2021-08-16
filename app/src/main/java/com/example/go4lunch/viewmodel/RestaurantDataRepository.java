@@ -1,5 +1,6 @@
 package com.example.go4lunch.viewmodel;
 
+import com.example.go4lunch.Utils;
 import com.example.go4lunch.retrofit.RetrofitApi;
 import com.example.go4lunch.retrofit.RetrofitUtils;
 import com.example.go4lunch.models.Restaurant;
@@ -26,9 +27,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.example.go4lunch.Utils.restaurantsCollectionReference;
-import static com.example.go4lunch.Utils.workersCollectionReference;
-import static com.example.go4lunch.viewmodel.WorkerDataRepository.latLng;
+import static com.example.go4lunch.Utils.latLng;
+import static com.example.go4lunch.CollectionsUtils.restaurantsCollectionReference;
+import static com.example.go4lunch.CollectionsUtils.workersCollectionReference;
 
 public class RestaurantDataRepository {
 
@@ -72,7 +73,7 @@ public class RestaurantDataRepository {
                 for (QueryDocumentSnapshot document : taskRestaurant.getResult()) {
                     Restaurant restaurant = document.toObject(Restaurant.class);
                     updateRestaurantParticipants(restaurant, workerList);
-                    distanceFilter(restaurant, restaurantList);
+                    Utils.distanceFilter(restaurant, restaurantList);
                 }
 
                if (restaurantList.isEmpty() && latLng != null){
@@ -98,17 +99,6 @@ public class RestaurantDataRepository {
         }
         restaurant.setWorkerList(participantList);
         restaurantsCollectionReference.document(restaurant.getId()).update("workerList", participantList);
-    }
-
-    public void distanceFilter(Restaurant restaurant, List<Restaurant> restaurantList){
-        if (latLng != null) {
-            restaurant.setDistance((int) SphericalUtil.computeDistanceBetween(latLng,
-                    new LatLng(restaurant.getLocation().getLat(), restaurant.getLocation().getLng())));
-
-            if (restaurant.getDistance() < 750) {
-                restaurantList.add(restaurant);
-            }
-        }
     }
 
     public void filter(String input, List<Restaurant> restaurantList, MutableLiveData<List<Restaurant>> data){

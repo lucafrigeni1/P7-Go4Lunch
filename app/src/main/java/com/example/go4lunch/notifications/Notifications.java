@@ -7,17 +7,12 @@ import android.media.RingtoneManager;
 import android.os.Build;
 
 import com.example.go4lunch.R;
+import com.example.go4lunch.Utils;
 import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.models.Worker;
 import com.google.firebase.auth.FirebaseAuth;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -28,8 +23,8 @@ import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import androidx.work.WorkerParameters;
 
-import static com.example.go4lunch.Utils.restaurantsCollectionReference;
-import static com.example.go4lunch.Utils.workersCollectionReference;
+import static com.example.go4lunch.CollectionsUtils.restaurantsCollectionReference;
+import static com.example.go4lunch.CollectionsUtils.workersCollectionReference;
 
 public class Notifications extends androidx.work.Worker {
 
@@ -40,14 +35,12 @@ public class Notifications extends androidx.work.Worker {
     }
 
     public static void launchWorker(Context context){
-        Date date = Calendar.getInstance().getTime();
-        DateFormat hourFormat = new SimpleDateFormat("HHmm", Locale.FRENCH);
-        int currentTime = Integer.parseInt(hourFormat.format(date));
+        int currentTime = Utils.getCurrentTime();
 
         WorkRequest workRequest;
 
         int currentTimeInMinute = (currentTime /100 * 60) + (currentTime % 100);
-        int triggerTime = 1159;
+        int triggerTime = 1857;
         int triggerTimeInMinute = (triggerTime /100 * 60) + (triggerTime % 100);
 
         if (currentTime > triggerTime){
@@ -85,11 +78,11 @@ public class Notifications extends androidx.work.Worker {
         restaurantsCollectionReference
                 .document(worker.getRestaurant().getId()).get().addOnCompleteListener(task -> {
                     Restaurant restaurant = task.getResult().toObject(Restaurant.class);
-                    getInformations(context, Objects.requireNonNull(restaurant), worker);
+                    setParticipantsList(context, Objects.requireNonNull(restaurant), worker);
                 });
     }
 
-    public void getInformations(Context context, Restaurant restaurant, Worker currentUser) {
+    public void setParticipantsList(Context context, Restaurant restaurant, Worker currentUser) {
         List<String> participantsList = new ArrayList<>();
         String participants;
 
@@ -99,16 +92,17 @@ public class Notifications extends androidx.work.Worker {
             }
         }
 
-        String SEPARATOR = ",";
+        int counter = participantsList.size();
         StringBuilder stringBuilder = new StringBuilder();
-
         for (String name : participantsList){
-            stringBuilder.append(name);
-            stringBuilder.append(SEPARATOR);
+            if (counter > 1) {
+                stringBuilder.append(name).append(", ");
+            } else
+                stringBuilder.append(name);
+            counter--;
         }
-        stringBuilder.setLength(stringBuilder.length()-1);
-        String names = stringBuilder.toString();
 
+        String names = stringBuilder.toString();
         if (!names.isEmpty()) {
             participants = context.getString(R.string.coworkers, names);
         } else

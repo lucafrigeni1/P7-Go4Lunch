@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.R;
+import com.example.go4lunch.Utils;
 import com.example.go4lunch.di.Injections;
 import com.example.go4lunch.di.ViewModelFactory;
 import com.example.go4lunch.models.Restaurant;
@@ -35,20 +36,21 @@ public class RestaurantDetailActivity extends AppCompatActivity {
 
     public static final String EXTRA_RESTAURANT = "RestaurantId";
 
-    private WorkerViewModel workerViewModel;
-    private RestaurantViewModel restaurantViewModel;
+    WorkerViewModel workerViewModel;
+    RestaurantViewModel restaurantViewModel;
 
-    private Worker currentUser;
+    Worker currentUser;
 
-    private ImageView picture;
-    private ImageView rating;
-    private TextView name;
-    private TextView location;
-    private FloatingActionButton choiceBtn;
-    private ImageButton likeBtn;
-    private ImageButton callBtn;
-    private ImageButton websiteBtn;
-    private RecyclerView recyclerView;
+    ImageButton backButton;
+    ImageView picture;
+    ImageView rating;
+    TextView name;
+    TextView location;
+    FloatingActionButton choiceBtn;
+    ImageButton likeBtn;
+    ImageButton callBtn;
+    ImageButton websiteBtn;
+    RecyclerView recyclerView;
 
     boolean isChosen;
     boolean isFavorite;
@@ -63,6 +65,7 @@ public class RestaurantDetailActivity extends AppCompatActivity {
     }
 
     private void findViewById() {
+        backButton = findViewById(id.back_button);
         picture = findViewById(id.restaurant_image);
         rating = findViewById(id.rating_image);
         name = findViewById(id.restaurant_name);
@@ -92,24 +95,27 @@ public class RestaurantDetailActivity extends AppCompatActivity {
                 .apply(RequestOptions.centerCropTransform())
                 .into(picture);
 
-        double rate = restaurant.getRating();
-        if (rate >= 3.0 && rate < 4.0) {
+        if (Utils.setRating(restaurant) == 1){
             rating.setImageResource(R.drawable.ic_rating_1);
-        } else if (rate >= 4.0 && rate < 4.6) {
+        } else if (Utils.setRating(restaurant) == 2){
             rating.setImageResource(R.drawable.ic_rating_2);
-        } else if (rate >= 4.6) {
+        } else if (Utils.setRating(restaurant) == 3){
             rating.setImageResource(R.drawable.ic_rating_3);
         }
 
         name.setText(restaurant.getName());
         location.setText(restaurant.getAddress());
 
+        setBackButton();
         setChoiceBtn(restaurant);
         setCallBtn(restaurant);
         setLikeBtn(restaurant);
         setWebsiteBtn(restaurant);
-
         getWorkers(restaurant);
+    }
+
+    private void setBackButton(){
+        backButton.setOnClickListener(v -> finish());
     }
 
     private void setChoiceBtn(Restaurant restaurant) {

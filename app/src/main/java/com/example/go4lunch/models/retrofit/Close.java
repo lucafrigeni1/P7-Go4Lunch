@@ -6,6 +6,15 @@ public class Close {
     private Integer day;
     private String time;
 
+    public Close(Integer day, String time) {
+        this.day = day;
+        this.time = time;
+    }
+
+    public Close() {
+
+    }
+
     public Integer getDay() {
         return day;
     }

@@ -83,6 +83,10 @@ public class Restaurant{
         return location;
     }
 
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
     public int getDistance() {
         return distance;
     }
@@ -105,6 +109,10 @@ public class Restaurant{
 
     public List<Period> getOpenHours() {
         return openHours;
+    }
+
+    public void setOpenHours(List<Period> openHours) {
+        this.openHours = openHours;
     }
 
     @Override

@@ -51,7 +51,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 import static com.example.go4lunch.R.color.white;
-import static com.example.go4lunch.viewmodel.WorkerDataRepository.latLng;
+import static com.example.go4lunch.Utils.latLng;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 

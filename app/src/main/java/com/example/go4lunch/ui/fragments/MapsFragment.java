@@ -46,7 +46,7 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
-import static com.example.go4lunch.viewmodel.WorkerDataRepository.latLng;
+import static com.example.go4lunch.Utils.latLng;
 
 public class MapsFragment extends Fragment implements OnMapReadyCallback {
 

@@ -7,6 +7,14 @@ public class Location {
     private Double lat;
     private Double lng;
 
+    public Location(Double lat, Double lng) {
+        this.lat = lat;
+        this.lng = lng;
+    }
+
+    public Location() {
+    }
+
     public Double getLat() {
         return lat;
     }

@@ -1,5 +1,7 @@
 package com.example.go4lunch.ui.fragments;
 
+import static com.example.go4lunch.Utils.latLng;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,7 +67,7 @@ public class RestaurantListFragment extends Fragment {
 
     public void setRestaurantList(List<Restaurant> restaurants) {
         if (isVisible()){
-            if (WorkerDataRepository.latLng == null){
+            if (latLng == null){
                 errorText.setText(getText(R.string.error_location));
                 errorText.setVisibility(View.VISIBLE);
                 recyclerView.setVisibility(View.GONE);

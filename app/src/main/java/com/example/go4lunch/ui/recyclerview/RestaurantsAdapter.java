@@ -1,5 +1,12 @@
 package com.example.go4lunch.ui.recyclerview;
 
+import static com.example.go4lunch.Utils.getCloseHour;
+import static com.example.go4lunch.Utils.getCurrentDay;
+import static com.example.go4lunch.Utils.getCurrentTime;
+import static com.example.go4lunch.Utils.setDisplayHour;
+import static com.example.go4lunch.Utils.getOpenHour;
+import static com.example.go4lunch.Utils.setMeridiem;
+
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
@@ -10,19 +17,12 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.go4lunch.Utils;
 import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.R;
-import com.example.go4lunch.models.retrofit.Period;
 import com.example.go4lunch.ui.activity.RestaurantDetailActivity;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -77,22 +77,33 @@ public class RestaurantsAdapter extends RecyclerView.Adapter<RestaurantsAdapter.
         }
 
         public void bind(Restaurant restaurant) {
-            setMainInformation(restaurant);
-            setOpening(restaurant);
-            setDistance(restaurant);
-            setParticipants(restaurant);
-            setRating(restaurant);
+            setView(restaurant);
             startRestaurantDetailActivity(restaurant);
         }
 
-        private void setMainInformation(Restaurant restaurant) {
-            name.setText(restaurant.getName());
-            location.setText(restaurant.getAddress());
-
+        private void setView(Restaurant restaurant) {
             Glide.with(picture)
                     .load(restaurant.getPhotos())
                     .apply(RequestOptions.centerCropTransform())
                     .into(picture);
+
+            name.setText(restaurant.getName());
+            distance.setText(itemView.getContext().getString(R.string.distance,
+                    String.valueOf(restaurant.getDistance())));
+            location.setText(restaurant.getAddress());
+
+            setOpening(restaurant);
+
+            people.setText(itemView.getContext().getString(R.string.participants,
+                    String.valueOf(restaurant.getWorkerList().size())));
+
+            if (Utils.setRating(restaurant) == 1){
+                rating.setImageResource(R.drawable.ic_rating_1);
+            } else if (Utils.setRating(restaurant) == 2){
+                rating.setImageResource(R.drawable.ic_rating_2);
+            } else if (Utils.setRating(restaurant) == 3){
+                rating.setImageResource(R.drawable.ic_rating_3);
+            }
         }
 
         private void setOpening(Restaurant restaurant) {
@@ -114,153 +125,25 @@ public class RestaurantsAdapter extends RecyclerView.Adapter<RestaurantsAdapter.
             } else if (currentTime < open && open < close) {
                 int hour = open/100;
                 int minute = (open - hour * 100) % 60;
-
-                String meridiem;
-                if (hour > 11 && hour != 24){
-                    meridiem = "pm";
-                } else {
-                    meridiem = "am";
-                }
-
-                int displayHour = getDisplayHour(hour);
-
                 if (minute == 0){
                     opening.setText(itemView.getContext().getString(R.string.open_soon,
-                            displayHour + meridiem));
+                            setDisplayHour(hour) + setMeridiem(hour)));
                 } else {
                     opening.setText(itemView.getContext().getString(R.string.open_soon,
-                            displayHour + "." + minute + meridiem));
+                            setDisplayHour(hour) + "." + minute + setMeridiem(hour)));
                 }
                 opening.setTypeface(null, Typeface.ITALIC);
             } else {
                 int hour = close/100;
                 int minute = (close - hour * 100) % 60;
-
-                String meridiem;
-                if (hour > 11 && hour != 24){
-                    meridiem = "pm";
-                } else {
-                    meridiem = "am";
-                }
-
-                int displayHour = getDisplayHour(hour);
-
                 if (minute == 0){
                     opening.setText(itemView.getContext().getString(R.string.already_open,
-                            displayHour + meridiem));
+                            setDisplayHour(hour) + setMeridiem(hour)));
                 } else {
                     opening.setText(itemView.getContext().getString(R.string.already_open,
-                            displayHour + "." + minute + meridiem));
+                            setDisplayHour(hour) + "." + minute + setMeridiem(hour)));
                 }
                 opening.setTypeface(null, Typeface.ITALIC);
-            }
-        }
-
-        private int getDisplayHour(int hour){
-            if (hour >= 13) {
-                return hour - 12;
-            } else
-                return hour;
-        }
-
-        private int getCurrentTime() {
-            Date date = Calendar.getInstance().getTime();
-            DateFormat hourFormat = new SimpleDateFormat("HHmm", Locale.ENGLISH);
-            return Integer.parseInt(hourFormat.format(date));
-        }
-
-        private int getCurrentDay(){
-            int day = 0;
-            switch (Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
-                case Calendar.MONDAY:
-                    day = 1;
-                    break;
-                case Calendar.TUESDAY:
-                    day = 2;
-                    break;
-                case Calendar.WEDNESDAY:
-                    day = 3;
-                    break;
-                case Calendar.THURSDAY:
-                    day = 4;
-                    break;
-                case Calendar.FRIDAY:
-                    day = 5;
-                    break;
-                case Calendar.SATURDAY:
-                    day = 6;
-                    break;
-                case Calendar.SUNDAY:
-                    day = 7;
-                    break;
-            }
-            return day;
-        }
-
-        private int getOpenHour(Restaurant restaurant, int day, int currentTime){
-            List<Integer> openList = new ArrayList<>();
-            int open = 0;
-
-            for (Period period : restaurant.getOpenHours()) {
-                if (day == period.getOpen().getDay()) {
-                    openList.add(Integer.parseInt(period.getOpen().getTime()));
-                }
-            }
-            Collections.sort(openList);
-
-            if (openList.isEmpty()) {
-                open = -1;
-            } else if (openList.size() == 1) {
-                open = openList.get(0);
-            } else if (openList.size() == 2 && currentTime <= openList.get(0)) {
-                open = openList.get(0);
-            } else if (openList.size() == 2 && currentTime > openList.get(0) && currentTime < openList.get(1)) {
-                open = openList.get(1);
-            }
-            return open;
-        }
-
-        private int getCloseHour(Restaurant restaurant, int day, int currentTime) {
-            List<Integer> closeList = new ArrayList<>();
-            int close = 0;
-
-            for (Period period : restaurant.getOpenHours()) {
-                if (day == period.getClose().getDay()) {
-                    closeList.add(Integer.parseInt(period.getClose().getTime()));
-                }
-            }
-            Collections.sort(closeList);
-
-            if (closeList.isEmpty()) {
-                close = -1;
-            } else if (closeList.size() == 1) {
-                close = closeList.get(0);
-            } else if (closeList.size() == 2 && currentTime <= closeList.get(0)) {
-                close = closeList.get(0);
-            } else if (closeList.size() == 2 && currentTime > closeList.get(0) && currentTime < closeList.get(1)) {
-                close = closeList.get(1);
-            }
-            return close;
-        }
-
-        private void setDistance(Restaurant restaurant) {
-            distance.setText(itemView.getContext().getString(R.string.distance,
-                    String.valueOf(restaurant.getDistance())));
-        }
-
-        private void setParticipants(Restaurant restaurant) {
-            people.setText(itemView.getContext().getString(R.string.participants,
-                    String.valueOf(restaurant.getWorkerList().size())));
-        }
-
-        private void setRating(Restaurant restaurant) {
-            double rate = restaurant.getRating();
-            if (rate >= 3.0 && rate < 4.0) {
-                rating.setImageResource(R.drawable.ic_rating_1);
-            } else if (rate >= 4.0 && rate < 4.6) {
-                rating.setImageResource(R.drawable.ic_rating_2);
-            } else if (rate >= 4.6) {
-                rating.setImageResource(R.drawable.ic_rating_3);
             }
         }
 
